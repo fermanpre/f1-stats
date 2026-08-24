@@ -1,0 +1,264 @@
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page-plane: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --gridline: #e1e0d9;
+  --border: rgba(11,11,11,0.10);
+  --row-hover: rgba(11,11,11,0.04);
+  --pit: #d03b3b;
+  --pit-bg: rgba(208,59,59,0.10);
+  --personal-best: #006300;
+  --race-best: #4a3aa7;
+  --mejor-de-la-vuelta: #2a78d6;
+  --link: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page-plane: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --border: rgba(255,255,255,0.10);
+    --row-hover: rgba(255,255,255,0.06);
+    --pit: #e66767;
+    --pit-bg: rgba(230,103,103,0.14);
+    --personal-best: #0ca30c;
+    --race-best: #9085e9;
+    --mejor-de-la-vuelta: #3987e5;
+    --link: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page-plane: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --gridline: #2c2c2a;
+  --border: rgba(255,255,255,0.10);
+  --row-hover: rgba(255,255,255,0.06);
+  --pit: #e66767;
+  --pit-bg: rgba(230,103,103,0.14);
+  --personal-best: #0ca30c;
+  --race-best: #9085e9;
+  --mejor-de-la-vuelta: #3987e5;
+  --link: #3987e5;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--page-plane);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { color: var(--link); }
+header.sitio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-1);
+  flex-wrap: wrap;
+}
+header.sitio .marca { font-weight: 700; font-size: 16px; }
+header.sitio .migas { color: var(--text-secondary); font-size: 13px; }
+header.sitio .migas a { color: var(--text-secondary); text-decoration: none; }
+header.sitio .migas a:hover { color: var(--link); }
+nav.vistas, nav.selector-temporadas {
+  display: flex;
+  gap: 4px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-1);
+  flex-wrap: wrap;
+}
+nav.vistas a, nav.selector-temporadas a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+nav.vistas a.activa, nav.selector-temporadas a.activa { background: var(--row-hover); color: var(--text-primary); }
+nav.vistas a:hover, nav.selector-temporadas a:hover { background: var(--row-hover); }
+nav.vistas .grupo-pdf { padding: 6px 12px; font-size: 13px; color: var(--text-muted); }
+nav.vistas .grupo-pdf a { color: var(--text-secondary); text-decoration: none; }
+nav.vistas .grupo-pdf a:hover { color: var(--link); text-decoration: underline; }
+header.sitio .selector-carreras {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  min-width: 0;
+}
+header.sitio .selector-carreras a {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 41px;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 0 0 1px var(--border);
+}
+header.sitio .selector-carreras a img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+header.sitio .selector-carreras a span {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.45);
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+header.sitio .selector-carreras a:hover { box-shadow: 0 0 0 1px var(--link); }
+header.sitio .selector-carreras a.activa { box-shadow: 0 0 0 2px var(--link); }
+.leyenda-pilotos {
+  display: flex; flex-wrap: wrap; gap: 10px 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border); background: var(--surface-1);
+  font-size: 12px; color: var(--text-secondary);
+}
+.bloque-equipo { flex: 0 1 210px; min-width: 0; }
+.cabecera-equipo { font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.piloto-leyenda strong { color: var(--text-primary); }
+.bandera { width: 16px; height: 12px; margin-right: 5px; vertical-align: middle; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px var(--border); }
+.leyenda-colores {
+  flex: 0 0 auto; margin-left: auto; align-self: flex-end;
+  display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: flex-end;
+}
+main { padding: 20px; max-width: 2300px; margin: 0 auto; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 16px; margin: 24px 0 10px; }
+h3 { font-size: 13px; margin: 0; font-weight: 700; color: var(--text-secondary); }
+p.subtitulo { color: var(--text-secondary); margin: 0 0 16px; font-size: 13px; }
+.tabla-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--gridline); }
+th:first-child, td:first-child { text-align: left; }
+thead th {
+  position: sticky; top: 0; background: var(--surface-1);
+  color: var(--text-secondary); font-weight: 600; font-size: 12px; z-index: 2;
+}
+tbody tr:hover { background: var(--row-hover); }
+td.col-pegada, th.col-pegada {
+  position: sticky; left: 0; background: var(--surface-1); z-index: 1;
+  text-align: left; min-width: 150px;
+}
+tbody tr:hover td.col-pegada { background: var(--row-hover); }
+td.pit { background: var(--pit-bg); color: var(--pit); font-weight: 600; }
+td.mejor-vuelta { font-weight: 700; }
+td.mejor-piloto { color: var(--personal-best); font-weight: 700; }
+td.mejor-carrera { color: var(--race-best); font-weight: 700; }
+.leyenda { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
+.leyenda span.marca-color { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+header.sitio .acciones { display: flex; align-items: center; gap: 8px; }
+.boton-tema {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+  border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer;
+}
+.selector-idioma { display: flex; gap: 4px; }
+.opcion-idioma {
+  display: flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+  border-radius: 6px; padding: 6px 8px; font-size: 12px; cursor: pointer;
+}
+.opcion-idioma.activa { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
+.bandera-boton { width: 14px; height: 10px; object-fit: cover; border-radius: 1px; box-shadow: 0 0 0 1px var(--border); }
+.i18n-es { display: none; }
+html[data-lang="es"] .i18n-es { display: inline; }
+html[data-lang="es"] .i18n-en { display: none; }
+.pildora { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.pildora.retirado { background: var(--pit-bg); color: var(--pit); }
+.pildora.dns { background: var(--row-hover); color: var(--text-muted); }
+.filtro { margin-bottom: 10px; }
+.filtro input {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+  border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 260px;
+}
+p.subtitulo.sugerencia { font-style: italic; margin-top: -8px; }
+.grafico-piloto {
+  margin: 0 0 20px; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface-1);
+}
+.grafico-piloto.oculto { display: none; }
+.cabecera-grafico { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.grafico-piloto figcaption { font-weight: 700; color: var(--text-primary); font-size: 13px; }
+.boton-recorte-grafico {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+  border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;
+}
+.boton-recorte-grafico.activo { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
+#grafico-vueltas-svg { width: 100%; height: auto; max-height: 260px; }
+.grafico-linea { fill: none; stroke: var(--link); stroke-width: 2; }
+.grafico-gridline { stroke: var(--gridline); stroke-width: 1; }
+.grafico-etiqueta { fill: var(--text-muted); font-size: 9px; }
+.grafico-etiqueta-eje { fill: var(--text-secondary); font-size: 10px; font-weight: 600; }
+.grafico-punto-recortado { fill: var(--pit); }
+.grafico-etiqueta-recorte { fill: var(--pit); font-size: 9px; font-weight: 700; }
+.grafico-quiebre-eje { stroke: var(--text-muted); stroke-width: 1.5; }
+.grafico-punto { fill: var(--link); cursor: default; transition: r 0.1s; }
+.grafico-punto:hover { r: 5; fill: var(--race-best); }
+.grafico-piloto { position: relative; }
+.tooltip-grafico {
+  position: fixed; pointer-events: none; z-index: 50;
+  background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 8px; font-size: 12px; font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25); white-space: nowrap;
+}
+.tooltip-grafico.oculto { display: none; }
+a.nombre-piloto-clicable { color: var(--link); text-decoration: none; cursor: pointer; }
+a.nombre-piloto-clicable:hover { text-decoration: underline; }
+tr.seleccionada { background: var(--row-hover); }
+tr.seleccionada td.col-pegada { background: var(--row-hover); font-weight: 700; }
+table.tabla-gapchart th, table.tabla-gapchart td { text-align: center; }
+table.tabla-gapchart th.col-pegada, table.tabla-gapchart td.col-pegada { text-align: left; min-width: 60px; }
+table.tabla-gapchart td { padding: 4px 7px; }
+table.tabla-gapchart span.codigo-piloto { display: block; font-weight: 700; font-size: 11px; color: var(--text-secondary); }
+table.tabla-gapchart span.valor-piloto { display: block; }
+table.tabla-gapchart tr:target { outline: 2px solid var(--link); outline-offset: -2px; }
+table.tabla-gapchart tr.fila-parrilla { background: var(--row-hover); }
+table.tabla-gapchart tr.fila-parrilla td.col-pegada { background: var(--row-hover); font-style: italic; color: var(--text-muted); }
+table.tabla-gapchart tr.fila-parrilla td:not(.col-pegada) { border-bottom: 2px solid var(--border); }
+table.tabla-gapchart td.pit, table.tabla-gapchart td.pit span { color: var(--pit); }
+table.tabla-gapchart td.mejor-piloto, table.tabla-gapchart td.mejor-piloto span { color: var(--personal-best); }
+table.tabla-gapchart td.mejor-carrera, table.tabla-gapchart td.mejor-carrera span { color: var(--race-best); }
+table.tabla-gapchart td.mejor-vuelta-todos, table.tabla-gapchart td.mejor-vuelta-todos span { color: var(--mejor-de-la-vuelta); }
+table.tabla-gapchart span.cambio-pos { font-weight: 700; margin-left: 3px; }
+table.tabla-gapchart span.cambio-pos.positivo { color: var(--personal-best); }
+table.tabla-gapchart span.cambio-pos.negativo { color: var(--pit); }
+footer.sitio {
+  padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;
+  border-top: 1px solid var(--border); margin-top: 30px;
+}
+footer.sitio a { color: var(--text-muted); }
+.tarjetas-carreras { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.tarjeta-carrera { border: 1px solid var(--border); border-radius: 8px; padding: 14px; background: var(--surface-1); }
+.tarjeta-carrera h3 { color: var(--text-primary); font-size: 14px; margin-bottom: 8px; }
+.tarjeta-carrera .enlaces { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; margin-top: 10px; }
