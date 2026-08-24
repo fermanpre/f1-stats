@@ -36,6 +36,26 @@
 })();
 
 (function () {
+  var botones = document.querySelectorAll('.opcion-vista-indice');
+  if (!botones.length) return;
+  function aplicarVista(vista) {
+    document.documentElement.setAttribute('data-vista-indice', vista);
+    botones.forEach(function (boton) {
+      boton.classList.toggle('activa', boton.getAttribute('data-vista-opcion') === vista);
+    });
+  }
+  var guardado = localStorage.getItem('f1-vista-indice') || 'tarjetas';
+  aplicarVista(guardado);
+  botones.forEach(function (boton) {
+    boton.addEventListener('click', function () {
+      var vista = boton.getAttribute('data-vista-opcion');
+      localStorage.setItem('f1-vista-indice', vista);
+      aplicarVista(vista);
+    });
+  });
+})();
+
+(function () {
   var filtro = document.querySelector('.filtro input');
   if (!filtro) return;
   filtro.addEventListener('input', function () {

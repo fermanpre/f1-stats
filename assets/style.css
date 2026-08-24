@@ -191,6 +191,16 @@ header.sitio .acciones { display: flex; align-items: center; gap: 8px; }
 }
 .opcion-idioma.activa { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
 .bandera-boton { width: 14px; height: 10px; object-fit: cover; border-radius: 1px; box-shadow: 0 0 0 1px var(--border); }
+.selector-vista-indice { display: flex; gap: 4px; margin: 12px 0; }
+.opcion-vista-indice {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+  border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer;
+}
+.opcion-vista-indice.activa { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
+.tabla-carreras-alt { display: none; }
+.tabla-carreras-alt table td, .tabla-carreras-alt table th { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+html[data-vista-indice="tabla"] .tarjetas-carreras { display: none; }
+html[data-vista-indice="tabla"] .tabla-carreras-alt { display: block; }
 .i18n-es { display: none; }
 html[data-lang="es"] .i18n-es { display: inline; }
 html[data-lang="es"] .i18n-en { display: none; }
