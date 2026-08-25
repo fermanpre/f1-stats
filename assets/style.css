@@ -263,6 +263,22 @@ p.subtitulo.sugerencia { font-style: italic; margin-top: -8px; }
 .grafico-quiebre-eje { stroke: var(--text-muted); stroke-width: 1.5; }
 .grafico-punto { fill: var(--link); cursor: default; transition: r 0.1s; }
 .grafico-punto:hover { r: 5; fill: var(--race-best); }
+/* Color por categoria (boxes/SC/VSC/bandera roja), independiente de si el
+   punto esta o no fuera de escala - mismos tokens que el resto del sitio
+   (filas de gapchart.html/laptimes.html/laps.html), asi una vuelta de
+   boxes/SC/VSC se distingue a simple vista sin necesitar activar su filtro. */
+.grafico-punto.punto-boxes, .grafico-punto-recortado.punto-boxes { fill: var(--pit); }
+.grafico-punto.punto-safety-car, .grafico-punto-recortado.punto-safety-car { fill: var(--safety-car); }
+.grafico-punto.punto-vsc, .grafico-punto-recortado.punto-vsc { fill: var(--vsc); }
+.grafico-punto.punto-bandera-roja, .grafico-punto-recortado.punto-bandera-roja { fill: var(--bandera-roja); }
+.grafico-etiqueta-recorte.punto-boxes { fill: var(--pit); }
+.grafico-etiqueta-recorte.punto-safety-car { fill: var(--safety-car); }
+.grafico-etiqueta-recorte.punto-vsc { fill: var(--vsc); }
+.grafico-etiqueta-recorte.punto-bandera-roja { fill: var(--bandera-roja); }
+/* Bandas verticales de fondo marcando en que vueltas hubo SC/VSC, mismo
+   patron de color (tokens *-bg) que el resto del sitio. */
+.grafico-banda-safety-car { fill: var(--safety-car-bg); }
+.grafico-banda-vsc { fill: var(--vsc-bg); }
 .grafico-piloto { position: relative; }
 .tooltip-grafico {
   position: fixed; pointer-events: none; z-index: 50;

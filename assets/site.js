@@ -75,8 +75,15 @@
   var datosPilotos = JSON.parse(elementoDatos.textContent);
   var tituloGrafico = document.getElementById('titulo-grafico-piloto');
   var botonesRecorte = document.querySelectorAll('.opcion-recorte-grafico');
-  var CATEGORIAS_RECORTE_TODAS = ['boxes', 'safety_car', 'vsc', 'bandera_roja'];
+  var CATEGORIAS_RECORTE_TODAS = ['boxes', 'safety_car', 'vsc'];
   var categoriasRecorte = new Set();
+  // bandera_roja no es una categoria de recorte mas: su magnitud (varios
+  // minutos, por la suspension de carrera) es tan extrema frente a boxes/SC/
+  // VSC (segundos) que dejarla dentro del calculo de escala, aunque sea sin
+  // marcar, inutiliza el grafico entero pase lo que pase con los otros
+  // filtros. Por eso queda SIEMPRE fuera de la escala (ver dibujarGrafico) y
+  // su propio boton solo controla si se dibuja o se oculta del todo.
+  var mostrarBanderaRoja = true;
   var pilotoActual = null;
 
   // Tooltip propio en vez de <title> nativo de SVG: el nativo tarda casi un
@@ -115,11 +122,11 @@
     // datos_grafico en generar_paginas.py). Una vuelta puede pertenecer a
     // mas de una categoria a la vez (p.ej. una parada en boxes durante un
     // VSC) - basta con que UNA de sus categorias este marcada para
-    // recortar.
+    // recortar. bandera_roja no entra aqui (ver mostrarBanderaRoja / nota
+    // en la declaracion de variables mas arriba).
     return (categoriasRecorte.has('boxes') && punto[2])
       || (categoriasRecorte.has('safety_car') && punto[3])
-      || (categoriasRecorte.has('vsc') && punto[4])
-      || (categoriasRecorte.has('bandera_roja') && punto[5]);
+      || (categoriasRecorte.has('vsc') && punto[4]);
   }
 
   function categoriasDePunto(punto) {
@@ -131,12 +138,29 @@
     return claves;
   }
 
+  function claseColorCategoria(punto) {
+    // Color por categoria SIEMPRE visible (no depende de que su filtro este
+    // activado) - mismo criterio que el sombreado de fila en gapchart.html/
+    // laptimes.html/laps.html: es informacion de contexto, no algo que haya
+    // que "activar" para verla. Prioridad cuando una vuelta pertenece a mas
+    // de una categoria a la vez: bandera roja > Safety Car > VSC > boxes
+    // (de la mas rara/severa a la mas frecuente).
+    if (punto[5]) return 'punto-bandera-roja';
+    if (punto[3]) return 'punto-safety-car';
+    if (punto[4]) return 'punto-vsc';
+    if (punto[2]) return 'punto-boxes';
+    return '';
+  }
+
   function dibujarGrafico(numero) {
     var piloto = datosPilotos[numero];
     if (!piloto) return;
     pilotoActual = numero;
     if (figura) { figura.classList.remove('oculto'); }
-    var puntos = piloto.vueltas;
+    // Si el boton de bandera roja esta desactivado, esas vueltas se quitan
+    // del todo (ni linea ni punto) en vez de intentar dibujarlas fuera de
+    // escala - ver la nota de mostrarBanderaRoja mas arriba.
+    var puntos = mostrarBanderaRoja ? piloto.vueltas : piloto.vueltas.filter(function (p) { return !p[5]; });
     var vueltasNums = puntos.map(function (p) { return p[0]; });
     var tiempos = puntos.map(function (p) { return p[1]; });
     var vMin = Math.min.apply(null, vueltasNums);
@@ -145,13 +169,17 @@
     var tMaxReal = Math.max.apply(null, tiempos);
     if (vMin === vMax) { vMax = vMin + 1; }
 
-    var puntosIncluidos = puntos.filter(function (p) { return !estaExcluidoPorFiltro(p); });
+    // bandera_roja queda SIEMPRE fuera del calculo de escala (aunque se
+    // dibuje, si mostrarBanderaRoja es true) - su magnitud (minutos) frente
+    // al resto (segundos) significa que dejarla "incluida" arruina la
+    // escala aunque no este marcada por su propio filtro. boxes/safety_car/
+    // vsc solo se excluyen si su boton respectivo esta activo.
+    var puntosIncluidos = puntos.filter(function (p) { return !p[5] && !estaExcluidoPorFiltro(p); });
     var tiemposIncluidos = puntosIncluidos.map(function (p) { return p[1]; });
-    var hayRecorte = categoriasRecorte.size > 0 && tiemposIncluidos.length > 0 && tiemposIncluidos.length < puntos.length;
-    // Techo = la vuelta mas lenta que NO pertenece a ninguna categoria
-    // actualmente marcada para recortar, con un 3% de margen - las vueltas
-    // de esas categorias se dibujan fuera de escala arriba en vez de
-    // desaparecer del grafico.
+    var hayRecorte = tiemposIncluidos.length > 0 && tiemposIncluidos.length < puntos.length;
+    // Techo = la vuelta mas lenta entre las no excluidas, con un 3% de
+    // margen - las vueltas excluidas se dibujan fuera de escala arriba en
+    // vez de desaparecer del grafico.
     var tMax = hayRecorte ? Math.max.apply(null, tiemposIncluidos) * 1.03 : tMaxReal;
     if (tMin === tMax) { tMax = tMin + 1; }
 
@@ -167,7 +195,20 @@
     var idioma = document.documentElement.getAttribute('data-lang') || 'en';
     var puntosSvg = puntos.map(function (p) { return x(p[0]).toFixed(1) + ',' + yRecortada(p[1]).toFixed(1); }).join(' ');
 
+    // Bandas verticales de fondo marcando en que vueltas hubo Safety Car o
+    // VSC (una franja por vuelta, ancho = un paso de vuelta completo) - se
+    // dibujan antes que la rejilla para que las lineas de guia se sigan
+    // viendo por encima, mismo patron de color (tokens *-bg) que el resto
+    // del sitio.
     var svgInterno = '';
+    puntos.forEach(function (p) {
+      var claseBanda = p[3] ? 'grafico-banda-safety-car' : (p[4] ? 'grafico-banda-vsc' : null);
+      if (!claseBanda) return;
+      var xIzq = x(p[0] - 0.5);
+      var xDer = x(p[0] + 0.5);
+      svgInterno += '<rect x="' + xIzq.toFixed(1) + '" y="' + arr + '" width="' + (xDer - xIzq).toFixed(1) + '" height="' + altoPlot + '" class="' + claseBanda + '"></rect>';
+    });
+
     var numTicksY = 4;
     for (var i = 0; i <= numTicksY; i++) {
       var valor = tMin + (tMax - tMin) * i / numTicksY;
@@ -201,7 +242,8 @@
       var esRecortado = hayRecorte && p[1] > tMax;
       var px = x(p[0]).toFixed(1);
       var py = yRecortada(p[1]).toFixed(1);
-      var clase = esRecortado ? 'grafico-punto-recortado' : 'grafico-punto';
+      var claseColor = claseColorCategoria(p);
+      var clase = (esRecortado ? 'grafico-punto-recortado' : 'grafico-punto') + (claseColor ? ' ' + claseColor : '');
       var radio = esRecortado ? 3 : 2.5;
       var claves = categoriasDePunto(p);
       var sufijoCategoria = claves.length
@@ -221,7 +263,8 @@
           // al pasar el ratón siguen mostrando el valor exacto) para que no
           // se solapen dos números.
           if (pxLabel - ultimoLabelX > 20) {
-            svgInterno += '<text x="' + pxLabel.toFixed(1) + '" y="' + (arr - 4) + '" class="grafico-etiqueta-recorte" text-anchor="middle">' + p[1].toFixed(1) + '</text>';
+            var claseColorLabel = claseColorCategoria(p);
+            svgInterno += '<text x="' + pxLabel.toFixed(1) + '" y="' + (arr - 4) + '" class="grafico-etiqueta-recorte' + (claseColorLabel ? ' ' + claseColorLabel : '') + '" text-anchor="middle">' + p[1].toFixed(1) + '</text>';
             ultimoLabelX = pxLabel;
           }
         }
@@ -259,9 +302,14 @@
   function actualizarBotonesRecorte() {
     botonesRecorte.forEach(function (boton) {
       var categoria = boton.getAttribute('data-categoria');
-      var activa = categoria === 'todas'
-        ? CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
-        : categoriasRecorte.has(categoria);
+      var activa;
+      if (categoria === 'todas') {
+        activa = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); });
+      } else if (categoria === 'bandera_roja') {
+        activa = mostrarBanderaRoja;
+      } else {
+        activa = categoriasRecorte.has(categoria);
+      }
       boton.classList.toggle('activo', activa);
     });
   }
@@ -274,6 +322,8 @@
         CATEGORIAS_RECORTE_TODAS.forEach(function (c) {
           if (todasActivas) { categoriasRecorte.delete(c); } else { categoriasRecorte.add(c); }
         });
+      } else if (categoria === 'bandera_roja') {
+        mostrarBanderaRoja = !mostrarBanderaRoja;
       } else if (categoriasRecorte.has(categoria)) {
         categoriasRecorte.delete(categoria);
       } else {
@@ -283,4 +333,8 @@
       if (pilotoActual !== null) dibujarGrafico(pilotoActual);
     });
   });
+
+  // Refleja el estado inicial (bandera roja mostrada por defecto) en cuanto
+  // carga la pagina, sin esperar a un primer click.
+  actualizarBotonesRecorte();
 })();
