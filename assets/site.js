@@ -74,8 +74,9 @@
   if (!svg || !elementoDatos) return;
   var datosPilotos = JSON.parse(elementoDatos.textContent);
   var tituloGrafico = document.getElementById('titulo-grafico-piloto');
-  var botonRecorte = document.querySelector('.boton-recorte-grafico');
-  var modoRecortado = false;
+  var botonesRecorte = document.querySelectorAll('.opcion-recorte-grafico');
+  var CATEGORIAS_RECORTE_TODAS = ['boxes', 'safety_car', 'vsc', 'bandera_roja'];
+  var categoriasRecorte = new Set();
   var pilotoActual = null;
 
   // Tooltip propio en vez de <title> nativo de SVG: el nativo tarda casi un
@@ -109,13 +110,25 @@
     return minutos + ':' + segTexto;
   }
 
-  function limiteSuperiorPorUmbral(tiempos) {
-    // Techo del eje = un 10% por encima de la vuelta rapida del piloto.
-    // Un umbral relativo a la mejor vuelta (en vez de estadistica tipo IQR)
-    // recorta cualquier vuelta anormalmente lenta -incluida la vuelta 1, de
-    // salida- no solo las de boxes, y es una sola operacion (min + producto).
-    var masRapida = Math.min.apply(null, tiempos);
-    return masRapida * 1.10;
+  function estaExcluidoPorFiltro(punto) {
+    // punto = [vuelta, tiempo, boxes, safety_car, vsc, bandera_roja] (ver
+    // datos_grafico en generar_paginas.py). Una vuelta puede pertenecer a
+    // mas de una categoria a la vez (p.ej. una parada en boxes durante un
+    // VSC) - basta con que UNA de sus categorias este marcada para
+    // recortar.
+    return (categoriasRecorte.has('boxes') && punto[2])
+      || (categoriasRecorte.has('safety_car') && punto[3])
+      || (categoriasRecorte.has('vsc') && punto[4])
+      || (categoriasRecorte.has('bandera_roja') && punto[5]);
+  }
+
+  function categoriasDePunto(punto) {
+    var claves = [];
+    if (punto[2]) claves.push('boxes');
+    if (punto[3]) claves.push('safety_car');
+    if (punto[4]) claves.push('vsc');
+    if (punto[5]) claves.push('bandera_roja');
+    return claves;
   }
 
   function dibujarGrafico(numero) {
@@ -132,9 +145,14 @@
     var tMaxReal = Math.max.apply(null, tiempos);
     if (vMin === vMax) { vMax = vMin + 1; }
 
-    var limiteRecorte = modoRecortado ? limiteSuperiorPorUmbral(tiempos) : null;
-    var hayRecorte = modoRecortado && limiteRecorte !== null && limiteRecorte < tMaxReal;
-    var tMax = hayRecorte ? limiteRecorte : tMaxReal;
+    var puntosIncluidos = puntos.filter(function (p) { return !estaExcluidoPorFiltro(p); });
+    var tiemposIncluidos = puntosIncluidos.map(function (p) { return p[1]; });
+    var hayRecorte = categoriasRecorte.size > 0 && tiemposIncluidos.length > 0 && tiemposIncluidos.length < puntos.length;
+    // Techo = la vuelta mas lenta que NO pertenece a ninguna categoria
+    // actualmente marcada para recortar, con un 3% de margen - las vueltas
+    // de esas categorias se dibujan fuera de escala arriba en vez de
+    // desaparecer del grafico.
+    var tMax = hayRecorte ? Math.max.apply(null, tiemposIncluidos) * 1.03 : tMaxReal;
     if (tMin === tMax) { tMax = tMin + 1; }
 
     var izq = 46, der = 10, arr = hayRecorte ? 24 : 10, abj = 28;
@@ -166,9 +184,15 @@
     var etiquetasEjeX = { es: 'Vuelta', en: 'Lap', fr: 'Tour' };
     var etiquetasEjeY = { es: 'Segundos', en: 'Seconds', fr: 'Secondes' };
     var etiquetasVuelta = { es: 'Vuelta ', en: 'Lap ', fr: 'Tour ' };
+    var etiquetasCategoria = {
+      es: { boxes: 'boxes', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'bandera roja' },
+      en: { boxes: 'pit stop', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'red flag' },
+      fr: { boxes: 'stands', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'drapeau rouge' }
+    };
     var etiquetaEjeX = etiquetasEjeX[idioma] || etiquetasEjeX.en;
     var etiquetaEjeY = etiquetasEjeY[idioma] || etiquetasEjeY.en;
     var etiquetaVuelta = etiquetasVuelta[idioma] || etiquetasVuelta.en;
+    var etiquetasCategoriaIdioma = etiquetasCategoria[idioma] || etiquetasCategoria.en;
     var ejeYx = izq - 34, ejeYy = arr + altoPlot / 2;
 
     svgInterno += '<polyline points="' + puntosSvg + '" class="grafico-linea"></polyline>';
@@ -179,7 +203,11 @@
       var py = yRecortada(p[1]).toFixed(1);
       var clase = esRecortado ? 'grafico-punto-recortado' : 'grafico-punto';
       var radio = esRecortado ? 3 : 2.5;
-      var textoTooltip = etiquetaVuelta + p[0] + ': ' + formatearTiempoJs(p[1]);
+      var claves = categoriasDePunto(p);
+      var sufijoCategoria = claves.length
+        ? ' (' + claves.map(function (c) { return etiquetasCategoriaIdioma[c]; }).join(', ') + ')'
+        : '';
+      var textoTooltip = etiquetaVuelta + p[0] + ': ' + formatearTiempoJs(p[1]) + sufijoCategoria;
       svgInterno += '<circle cx="' + px + '" cy="' + py + '" r="' + radio + '" class="' + clase + '" data-tooltip="' + textoTooltip + '"></circle>';
     });
 
@@ -228,11 +256,31 @@
     });
   });
 
-  if (botonRecorte) {
-    botonRecorte.addEventListener('click', function () {
-      modoRecortado = !modoRecortado;
-      botonRecorte.classList.toggle('activo', modoRecortado);
-      if (pilotoActual !== null) dibujarGrafico(pilotoActual);
+  function actualizarBotonesRecorte() {
+    botonesRecorte.forEach(function (boton) {
+      var categoria = boton.getAttribute('data-categoria');
+      var activa = categoria === 'todas'
+        ? CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
+        : categoriasRecorte.has(categoria);
+      boton.classList.toggle('activo', activa);
     });
   }
+
+  botonesRecorte.forEach(function (boton) {
+    boton.addEventListener('click', function () {
+      var categoria = boton.getAttribute('data-categoria');
+      if (categoria === 'todas') {
+        var todasActivas = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); });
+        CATEGORIAS_RECORTE_TODAS.forEach(function (c) {
+          if (todasActivas) { categoriasRecorte.delete(c); } else { categoriasRecorte.add(c); }
+        });
+      } else if (categoriasRecorte.has(categoria)) {
+        categoriasRecorte.delete(categoria);
+      } else {
+        categoriasRecorte.add(categoria);
+      }
+      actualizarBotonesRecorte();
+      if (pilotoActual !== null) dibujarGrafico(pilotoActual);
+    });
+  });
 })();

@@ -246,11 +246,13 @@ p.subtitulo.sugerencia { font-style: italic; margin-top: -8px; }
 .grafico-piloto.oculto { display: none; }
 .cabecera-grafico { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
 .grafico-piloto figcaption { font-weight: 700; color: var(--text-primary); font-size: 13px; }
-.boton-recorte-grafico {
+.filtros-recorte-grafico { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.etiqueta-filtros-recorte { font-size: 11px; color: var(--text-muted); }
+.opcion-recorte-grafico {
   border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
   border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;
 }
-.boton-recorte-grafico.activo { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
+.opcion-recorte-grafico.activo { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
 #grafico-vueltas-svg { width: 100%; height: auto; max-height: 260px; }
 .grafico-linea { fill: none; stroke: var(--link); stroke-width: 2; }
 .grafico-gridline { stroke: var(--gridline); stroke-width: 1; }
