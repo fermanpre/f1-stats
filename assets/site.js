@@ -17,7 +17,7 @@
   function aplicarIdioma(idioma) {
     document.documentElement.setAttribute('data-lang', idioma);
     document.querySelectorAll('[data-placeholder-es]').forEach(function (campo) {
-      var atributo = idioma === 'en' ? 'data-placeholder-en' : 'data-placeholder-es';
+      var atributo = idioma === 'en' || idioma === 'fr' ? 'data-placeholder-' + idioma : 'data-placeholder-es';
       campo.setAttribute('placeholder', campo.getAttribute(atributo));
     });
     botones.forEach(function (boton) {
@@ -146,7 +146,7 @@
     function y(tiempo) { return arr + (1 - (tiempo - tMin) / (tMax - tMin)) * altoPlot; }
     function yRecortada(tiempo) { return Math.max(arr + 6, y(tiempo)); }
 
-    var idiomaEsActivo = document.documentElement.getAttribute('data-lang') !== 'en';
+    var idioma = document.documentElement.getAttribute('data-lang') || 'en';
     var puntosSvg = puntos.map(function (p) { return x(p[0]).toFixed(1) + ',' + yRecortada(p[1]).toFixed(1); }).join(' ');
 
     var svgInterno = '';
@@ -163,9 +163,12 @@
       svgInterno += '<text x="' + x(v).toFixed(1) + '" y="' + (altoTotal - 8) + '" class="grafico-etiqueta" text-anchor="middle">' + v + '</text>';
     }
 
-    var etiquetaEjeX = idiomaEsActivo ? 'Vuelta' : 'Lap';
-    var etiquetaEjeY = idiomaEsActivo ? 'Segundos' : 'Seconds';
-    var etiquetaVuelta = idiomaEsActivo ? 'Vuelta ' : 'Lap ';
+    var etiquetasEjeX = { es: 'Vuelta', en: 'Lap', fr: 'Tour' };
+    var etiquetasEjeY = { es: 'Segundos', en: 'Seconds', fr: 'Secondes' };
+    var etiquetasVuelta = { es: 'Vuelta ', en: 'Lap ', fr: 'Tour ' };
+    var etiquetaEjeX = etiquetasEjeX[idioma] || etiquetasEjeX.en;
+    var etiquetaEjeY = etiquetasEjeY[idioma] || etiquetasEjeY.en;
+    var etiquetaVuelta = etiquetasVuelta[idioma] || etiquetasVuelta.en;
     var ejeYx = izq - 34, ejeYy = arr + altoPlot / 2;
 
     svgInterno += '<polyline points="' + puntosSvg + '" class="grafico-linea"></polyline>';
