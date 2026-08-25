@@ -14,6 +14,10 @@
   --race-best: #4a3aa7;
   --mejor-de-la-vuelta: #2a78d6;
   --link: #2a78d6;
+  --safety-car: #b8860b;
+  --safety-car-bg: rgba(230,181,30,0.20);
+  --vsc: #a15c07;
+  --vsc-bg: rgba(181,101,29,0.18);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -32,6 +36,10 @@
     --race-best: #9085e9;
     --mejor-de-la-vuelta: #3987e5;
     --link: #3987e5;
+    --safety-car: #e0c02a;
+    --safety-car-bg: rgba(224,192,42,0.16);
+    --vsc: #d68a3a;
+    --vsc-bg: rgba(214,138,58,0.16);
   }
 }
 :root[data-theme="dark"] {
@@ -50,6 +58,10 @@
   --race-best: #9085e9;
   --mejor-de-la-vuelta: #3987e5;
   --link: #3987e5;
+  --safety-car: #e0c02a;
+  --safety-car-bg: rgba(224,192,42,0.16);
+  --vsc: #d68a3a;
+  --vsc-bg: rgba(214,138,58,0.16);
 }
 
 * { box-sizing: border-box; }
@@ -258,6 +270,10 @@ table.tabla-gapchart tr:target { outline: 2px solid var(--link); outline-offset:
 table.tabla-gapchart tr.fila-parrilla { background: var(--row-hover); }
 table.tabla-gapchart tr.fila-parrilla td.col-pegada { background: var(--row-hover); font-style: italic; color: var(--text-muted); }
 table.tabla-gapchart tr.fila-parrilla td:not(.col-pegada) { border-bottom: 2px solid var(--border); }
+table.tabla-gapchart tr.safety-car-row { background: var(--safety-car-bg); }
+table.tabla-gapchart tr.safety-car-row td.col-pegada { background: var(--safety-car-bg); }
+table.tabla-gapchart tr.vsc-row { background: var(--vsc-bg); }
+table.tabla-gapchart tr.vsc-row td.col-pegada { background: var(--vsc-bg); }
 table.tabla-gapchart td.pit, table.tabla-gapchart td.pit span { color: var(--pit); }
 table.tabla-gapchart td.mejor-piloto, table.tabla-gapchart td.mejor-piloto span { color: var(--personal-best); }
 table.tabla-gapchart td.mejor-carrera, table.tabla-gapchart td.mejor-carrera span { color: var(--race-best); }
