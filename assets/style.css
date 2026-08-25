@@ -18,6 +18,8 @@
   --safety-car-bg: rgba(230,181,30,0.20);
   --vsc: #a15c07;
   --vsc-bg: rgba(181,101,29,0.18);
+  --bandera-roja: #7a6a5a;
+  --bandera-roja-bg: rgba(122,106,90,0.16);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -40,6 +42,8 @@
     --safety-car-bg: rgba(224,192,42,0.16);
     --vsc: #d68a3a;
     --vsc-bg: rgba(214,138,58,0.16);
+    --bandera-roja: #a89686;
+    --bandera-roja-bg: rgba(168,150,134,0.16);
   }
 }
 :root[data-theme="dark"] {
@@ -62,6 +66,8 @@
   --safety-car-bg: rgba(224,192,42,0.16);
   --vsc: #d68a3a;
   --vsc-bg: rgba(214,138,58,0.16);
+  --bandera-roja: #a89686;
+  --bandera-roja-bg: rgba(168,150,134,0.16);
 }
 
 * { box-sizing: border-box; }
@@ -188,6 +194,12 @@ td.pit { background: var(--pit-bg); color: var(--pit); font-weight: 600; }
 td.mejor-vuelta { font-weight: 700; }
 td.mejor-piloto { color: var(--personal-best); font-weight: 700; }
 td.mejor-carrera { color: var(--race-best); font-weight: 700; }
+/* Columna entera (cabecera th incluida) de laptimes.html bajo SC/VSC -
+   td.pit tiene prioridad visual si ambas aplican a la vez (declarada
+   antes, y el fondo de pit es más específico del suceso puntual). */
+th.safety-car, td.safety-car { background: var(--safety-car-bg); }
+th.vsc, td.vsc { background: var(--vsc-bg); }
+td.bandera-roja { background: var(--bandera-roja-bg); color: var(--bandera-roja); font-style: italic; }
 .leyenda { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
 .leyenda span.marca-color { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
 header.sitio .acciones { display: flex; align-items: center; gap: 8px; }
@@ -270,10 +282,12 @@ table.tabla-gapchart tr:target { outline: 2px solid var(--link); outline-offset:
 table.tabla-gapchart tr.fila-parrilla { background: var(--row-hover); }
 table.tabla-gapchart tr.fila-parrilla td.col-pegada { background: var(--row-hover); font-style: italic; color: var(--text-muted); }
 table.tabla-gapchart tr.fila-parrilla td:not(.col-pegada) { border-bottom: 2px solid var(--border); }
-table.tabla-gapchart tr.safety-car-row { background: var(--safety-car-bg); }
-table.tabla-gapchart tr.safety-car-row td.col-pegada { background: var(--safety-car-bg); }
-table.tabla-gapchart tr.vsc-row { background: var(--vsc-bg); }
-table.tabla-gapchart tr.vsc-row td.col-pegada { background: var(--vsc-bg); }
+/* Filas safety-car-row/vsc-row: sin acotar a .tabla-gapchart - se
+   reutilizan igual en la tabla de ranking de vueltas de laps.html. */
+tr.safety-car-row { background: var(--safety-car-bg); }
+tr.safety-car-row td.col-pegada { background: var(--safety-car-bg); }
+tr.vsc-row { background: var(--vsc-bg); }
+tr.vsc-row td.col-pegada { background: var(--vsc-bg); }
 table.tabla-gapchart td.pit, table.tabla-gapchart td.pit span { color: var(--pit); }
 table.tabla-gapchart td.mejor-piloto, table.tabla-gapchart td.mejor-piloto span { color: var(--personal-best); }
 table.tabla-gapchart td.mejor-carrera, table.tabla-gapchart td.mejor-carrera span { color: var(--race-best); }
