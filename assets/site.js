@@ -109,6 +109,11 @@
     });
   }
 
+  function formatearEtiquetaEje(valor) {
+    var redondeado = Math.round(valor * 10) / 10;
+    return (redondeado % 1 === 0) ? String(redondeado) : redondeado.toFixed(1);
+  }
+
   function formatearTiempoJs(segundos) {
     var minutos = Math.floor(segundos / 60);
     var seg = segundos - minutos * 60;
@@ -165,7 +170,10 @@
     var tiempos = puntos.map(function (p) { return p[1]; });
     var vMin = Math.min.apply(null, vueltasNums);
     var vMax = Math.max.apply(null, vueltasNums);
-    var tMin = Math.min.apply(null, tiempos);
+    // Redondeado hacia abajo a un entero (eje mas limpio, p.ej. "74" en vez
+    // de "74.2") - nunca recorta datos reales, solo amplia levemente el
+    // rango visible por debajo del minimo real.
+    var tMin = Math.floor(Math.min.apply(null, tiempos));
     var tMaxReal = Math.max.apply(null, tiempos);
     if (vMin === vMax) { vMax = vMin + 1; }
 
@@ -173,15 +181,26 @@
     // dibuje, si mostrarBanderaRoja es true) - su magnitud (minutos) frente
     // al resto (segundos) significa que dejarla "incluida" arruina la
     // escala aunque no este marcada por su propio filtro. boxes/safety_car/
-    // vsc solo se excluyen si su boton respectivo esta activo.
-    var puntosIncluidos = puntos.filter(function (p) { return !p[5] && !estaExcluidoPorFiltro(p); });
-    var tiemposIncluidos = puntosIncluidos.map(function (p) { return p[1]; });
-    var hayRecorte = tiemposIncluidos.length > 0 && tiemposIncluidos.length < puntos.length;
-    // Techo = la vuelta mas lenta entre las no excluidas, con un 3% de
-    // margen - las vueltas excluidas se dibujan fuera de escala arriba en
-    // vez de desaparecer del grafico.
-    var tMax = hayRecorte ? Math.max.apply(null, tiemposIncluidos) * 1.03 : tMaxReal;
+    // vsc solo se excluyen del calculo si su boton respectivo esta activo.
+    var puntosIncluidosPorCategoria = puntos.filter(function (p) { return !p[5] && !estaExcluidoPorFiltro(p); });
+    var tiemposIncluidosPorCategoria = puntosIncluidosPorCategoria.map(function (p) { return p[1]; });
+    var techoNatural = tiemposIncluidosPorCategoria.length
+      ? Math.max.apply(null, tiemposIncluidosPorCategoria) * 1.03
+      : tMaxReal;
+    // Tope duro adicional: el eje nunca se estira mas de un 10% por encima
+    // del minimo (redondeado hacia arriba a un entero) - sin este tope, una
+    // vuelta anomala SIN categoria conocida (p.ej. una vuelta de
+    // recuperacion tras un reinicio de bandera roja, que no es boxes/SC/
+    // VSC/bandera_roja en si misma) seguia dominando el grafico aunque
+    // estuviera fuera de cualquier filtro activo - ver el caso real que
+    // motivo este ajuste en la documentacion del proyecto.
+    var techoTope = Math.ceil(tMin * 1.10);
+    var tMax = Math.min(techoNatural, techoTope);
     if (tMin === tMax) { tMax = tMin + 1; }
+    // hayRecorte se decide DESPUES de fijar tMax (no solo por categoria):
+    // cualquier vuelta que supere el techo final, tenga o no una categoria
+    // conocida, necesita el tratamiento visual de "fuera de escala".
+    var hayRecorte = puntos.some(function (p) { return p[1] > tMax; });
 
     var izq = 46, der = 10, arr = hayRecorte ? 24 : 10, abj = 28;
     var anchoTotal = 640, altoTotal = 220;
@@ -214,7 +233,7 @@
       var valor = tMin + (tMax - tMin) * i / numTicksY;
       var yy = y(valor).toFixed(1);
       svgInterno += '<line x1="' + izq + '" x2="' + (anchoTotal - der) + '" y1="' + yy + '" y2="' + yy + '" class="grafico-gridline"></line>';
-      svgInterno += '<text x="' + (izq - 6) + '" y="' + yy + '" class="grafico-etiqueta" text-anchor="end" dominant-baseline="middle">' + valor.toFixed(1) + '</text>';
+      svgInterno += '<text x="' + (izq - 6) + '" y="' + yy + '" class="grafico-etiqueta" text-anchor="end" dominant-baseline="middle">' + formatearEtiquetaEje(valor) + '</text>';
     }
 
     var pasoX = (vMax - vMin) > 30 ? 5 : ((vMax - vMin) > 15 ? 2 : 1);
