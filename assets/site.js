@@ -74,22 +74,19 @@
   if (!svg || !elementoDatos) return;
   var datosPilotos = JSON.parse(elementoDatos.textContent);
   var tituloGrafico = document.getElementById('titulo-grafico-piloto');
-  var botonesRecorte = document.querySelectorAll('.opcion-recorte-grafico');
-  var CATEGORIAS_RECORTE_TODAS = ['boxes', 'safety_car', 'vsc'];
-  var categoriasRecorte = new Set();
-  // bandera_roja y vuelta_formacion no son categorias de recorte mas: su
-  // magnitud (minutos la primera; una vuelta entera muy lenta la segunda,
-  // consecuencia directa de la primera) es tan extrema frente a boxes/SC/VSC
-  // (segundos) que dejarlas dentro del calculo de escala, aunque sea sin
-  // marcar, inutiliza el grafico entero pase lo que pase con los otros
-  // filtros. Por eso quedan SIEMPRE fuera de la escala (ver dibujarGrafico) y
-  // su propio boton solo controla si se dibujan o se ocultan del todo -
-  // "activo" en su boton representa "las he ocultado" (una desviacion
-  // deliberada del comportamiento por defecto), no "se muestran" (que es el
-  // estado por defecto sin tocar nada) - mismo criterio visual que el resto
-  // de botones (sin pulsar = comportamiento por defecto).
-  var mostrarBanderaRoja = true;
-  var mostrarVueltaFormacion = true;
+  var botonRecorte = document.querySelector('.opcion-recorte-grafico');
+  // Un unico toggle todo-o-nada, no botones independientes por categoria -
+  // tras varias rondas probando exclusion independiente por categoria
+  // (boxes/SC/VSC/bandera_roja/vuelta_formacion cada una con su propio
+  // boton), la propia interaccion entre categorias de magnitud muy
+  // distinta la volvia impredecible: si una categoria no marcada era mas
+  // lenta que la que sí se excluía, el eje se quedaba "anclado" a ella sin
+  // que el usuario pudiera hacer nada. Con un solo interruptor no hay
+  // combinaciones parciales que puedan quedarse ancladas - o se recortan
+  // TODAS las categorias a la vez, o ninguna. El color/tooltip de cada
+  // punto sigue mostrando siempre su categoria (boxes/SC/VSC/bandera roja/
+  // vuelta de formacion), este o no activo el recorte.
+  var recortarActivo = false;
   var pilotoActual = null;
 
   // Tooltip propio en vez de <title> nativo de SVG: el nativo tarda casi un
@@ -128,16 +125,12 @@
     return minutos + ':' + segTexto;
   }
 
-  function estaExcluidoPorFiltro(punto) {
+  function esVueltaAnomala(punto) {
     // punto = [vuelta, tiempo, boxes, safety_car, vsc, bandera_roja,
     // vuelta_formacion] (ver datos_grafico en generar_paginas.py). Una
     // vuelta puede pertenecer a mas de una categoria a la vez (p.ej. una
-    // parada en boxes durante un VSC) - basta con que UNA de sus categorias
-    // este marcada para recortar. bandera_roja/vuelta_formacion no entran
-    // aqui (ver mostrarBanderaRoja/mostrarVueltaFormacion mas arriba).
-    return (categoriasRecorte.has('boxes') && punto[2])
-      || (categoriasRecorte.has('safety_car') && punto[3])
-      || (categoriasRecorte.has('vsc') && punto[4]);
+    // parada en boxes durante un VSC) - basta con que UNA este marcada.
+    return punto[2] || punto[3] || punto[4] || punto[5] || punto[6];
   }
 
   function categoriasDePunto(punto) {
@@ -171,13 +164,7 @@
     if (!piloto) return;
     pilotoActual = numero;
     if (figura) { figura.classList.remove('oculto'); }
-    // Si el boton de bandera roja/vuelta de formacion esta desactivado
-    // (mostrar*=false), esas vueltas se quitan del todo (ni linea ni punto)
-    // en vez de intentar dibujarlas fuera de escala - ver la nota junto a
-    // mostrarBanderaRoja mas arriba.
-    var puntos = piloto.vueltas
-      .filter(function (p) { return mostrarBanderaRoja || !p[5]; })
-      .filter(function (p) { return mostrarVueltaFormacion || !p[6]; });
+    var puntos = piloto.vueltas;
     var vueltasNums = puntos.map(function (p) { return p[0]; });
     var tiempos = puntos.map(function (p) { return p[1]; });
     var vMin = Math.min.apply(null, vueltasNums);
@@ -189,35 +176,29 @@
     var tMaxReal = Math.max.apply(null, tiempos);
     if (vMin === vMax) { vMax = vMin + 1; }
 
-    // bandera_roja y vuelta_formacion quedan SIEMPRE fuera del calculo de
-    // escala (aunque se dibujen, si mostrar* es true) - su magnitud frente
-    // al resto significa que dejarlas "incluidas" arruina la escala aunque
-    // no esten marcadas por su propio filtro. boxes/safety_car/vsc solo se
-    // excluyen del calculo si su boton respectivo esta activo - por eso
-    // "Todas" (ver CATEGORIAS_RECORTE_TODAS) nunca necesita incluirlas: ya
-    // estan excluidas siempre, no son una exclusion "opcional" mas.
-    var puntosIncluidosPorCategoria = puntos.filter(function (p) { return !p[5] && !p[6] && !estaExcluidoPorFiltro(p); });
-    var tiemposIncluidosPorCategoria = puntosIncluidosPorCategoria.map(function (p) { return p[1]; });
-    var tMax = tiemposIncluidosPorCategoria.length
-      ? Math.max.apply(null, tiemposIncluidosPorCategoria) * 1.03
+    // bandera_roja/vuelta_formacion quedan SIEMPRE fuera del calculo de
+    // escala, haya o no recorte activo - su magnitud (minutos, o una
+    // vuelta entera muy lenta como consecuencia directa) es tan extrema
+    // frente al resto que dejarlas "incluidas" arruina el grafico en
+    // cualquier circunstancia, no solo cuando el usuario pide recortar.
+    var puntosSinBanderaRoja = puntos.filter(function (p) { return !p[5] && !p[6]; });
+    var tiemposSinBanderaRoja = puntosSinBanderaRoja.map(function (p) { return p[1]; });
+    var techoSinBanderaRoja = tiemposSinBanderaRoja.length
+      ? Math.max.apply(null, tiemposSinBanderaRoja) * 1.03
       : tMaxReal;
-    // Con "Todas" activo (los 5 botones pulsados a la vez, ver
-    // actualizarBotonesRecorte) se añade ademas un tope duro: el eje nunca
-    // se estira mas de un 10% por encima del minimo (redondeado hacia
-    // arriba a un entero) - sin este tope, una vuelta anomala SIN
-    // categoria conocida (p.ej. una segunda vuelta de recuperacion
-    // recogiendo ritmo justo despues de la de formacion, que no es
-    // ninguna de las 5 categorias en si misma) seguiria dominando el
-    // grafico pese a tener TODO excluido/oculto. Fuera de "Todas" NO se
-    // aplica este tope - cada boton debe tener un efecto visible y
-    // predecible por si solo, sin que un tope fijo lo enmascare (ver
-    // documentacion del proyecto, el primer intento de tope siempre activo
-    // dejaba los botones individuales sin ningun efecto perceptible).
-    var todoActivo = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
-      && !mostrarBanderaRoja && !mostrarVueltaFormacion;
-    if (todoActivo) {
+
+    var tMax = techoSinBanderaRoja;
+    if (recortarActivo) {
+      // Con el recorte activo, el techo se calcula solo a partir de las
+      // vueltas realmente "limpias" (ninguna de las 5 categorias) - y
+      // ademas nunca se estira mas de un 10% por encima del minimo
+      // (redondeado hacia arriba a un entero), para que una vuelta anomala
+      // SIN categoria conocida (p.ej. una vuelta de recuperacion no
+      // clasificada) no pueda seguir dominando el grafico.
+      var limpias = puntos.filter(function (p) { return !esVueltaAnomala(p); }).map(function (p) { return p[1]; });
+      var techoNatural = limpias.length ? Math.max.apply(null, limpias) * 1.03 : techoSinBanderaRoja;
       var techoTope = Math.ceil(tMin * 1.10);
-      tMax = Math.min(tMax, techoTope);
+      tMax = Math.min(techoNatural, techoTope);
     }
     if (tMin === tMax) { tMax = tMin + 1; }
     // hayRecorte se decide DESPUES de fijar tMax: cualquier vuelta que
@@ -341,62 +322,11 @@
     });
   });
 
-  function actualizarBotonesRecorte() {
-    botonesRecorte.forEach(function (boton) {
-      var categoria = boton.getAttribute('data-categoria');
-      var activa;
-      if (categoria === 'todas') {
-        // "Todas" representa literalmente los 5 botones pulsados a la vez
-        // (boxes/safety_car/vsc excluidos de la escala + bandera_roja/
-        // vuelta_formacion ocultas), no solo los 3 primeros - si no,
-        // pulsar esos 3 sin tocar los otros 2 marca "Todas" como activa
-        // sin que el usuario los haya seleccionado de verdad (bug real,
-        // ver commit).
-        activa = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
-          && !mostrarBanderaRoja && !mostrarVueltaFormacion;
-      } else if (categoria === 'bandera_roja') {
-        // "activo" (pulsado) representa que el usuario la ha OCULTADO - el
-        // estado por defecto (mostrada) no debe verse como "pulsado", igual
-        // que ningun otro boton empieza pulsado sin que el usuario haga
-        // nada. Evita ademas que "Todas" parezca activarse sola al pulsar
-        // solo los otros 3 (bug real, ver commit).
-        activa = !mostrarBanderaRoja;
-      } else if (categoria === 'vuelta_formacion') {
-        activa = !mostrarVueltaFormacion;
-      } else {
-        activa = categoriasRecorte.has(categoria);
-      }
-      boton.classList.toggle('activo', activa);
-    });
-  }
-
-  botonesRecorte.forEach(function (boton) {
-    boton.addEventListener('click', function () {
-      var categoria = boton.getAttribute('data-categoria');
-      if (categoria === 'todas') {
-        var todasActivas = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
-          && !mostrarBanderaRoja && !mostrarVueltaFormacion;
-        CATEGORIAS_RECORTE_TODAS.forEach(function (c) {
-          if (todasActivas) { categoriasRecorte.delete(c); } else { categoriasRecorte.add(c); }
-        });
-        mostrarBanderaRoja = todasActivas;
-        mostrarVueltaFormacion = todasActivas;
-      } else if (categoria === 'bandera_roja') {
-        mostrarBanderaRoja = !mostrarBanderaRoja;
-      } else if (categoria === 'vuelta_formacion') {
-        mostrarVueltaFormacion = !mostrarVueltaFormacion;
-      } else if (categoriasRecorte.has(categoria)) {
-        categoriasRecorte.delete(categoria);
-      } else {
-        categoriasRecorte.add(categoria);
-      }
-      actualizarBotonesRecorte();
+  if (botonRecorte) {
+    botonRecorte.addEventListener('click', function () {
+      recortarActivo = !recortarActivo;
+      botonRecorte.classList.toggle('activo', recortarActivo);
       if (pilotoActual !== null) dibujarGrafico(pilotoActual);
     });
-  });
-
-  // Refleja el estado inicial (ningun boton pulsado, bandera roja/vuelta de
-  // formacion mostradas por defecto) en cuanto carga la pagina, sin esperar
-  // a un primer click.
-  actualizarBotonesRecorte();
+  }
 })();

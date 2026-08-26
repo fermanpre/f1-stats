@@ -254,7 +254,6 @@ p.subtitulo.sugerencia { font-style: italic; margin-top: -8px; }
 .cabecera-grafico { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
 .grafico-piloto figcaption { font-weight: 700; color: var(--text-primary); font-size: 13px; }
 .filtros-recorte-grafico { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.etiqueta-filtros-recorte { font-size: 11px; color: var(--text-muted); }
 .opcion-recorte-grafico {
   border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
   border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;
