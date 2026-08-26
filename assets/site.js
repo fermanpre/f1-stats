@@ -77,13 +77,19 @@
   var botonesRecorte = document.querySelectorAll('.opcion-recorte-grafico');
   var CATEGORIAS_RECORTE_TODAS = ['boxes', 'safety_car', 'vsc'];
   var categoriasRecorte = new Set();
-  // bandera_roja no es una categoria de recorte mas: su magnitud (varios
-  // minutos, por la suspension de carrera) es tan extrema frente a boxes/SC/
-  // VSC (segundos) que dejarla dentro del calculo de escala, aunque sea sin
+  // bandera_roja y vuelta_formacion no son categorias de recorte mas: su
+  // magnitud (minutos la primera; una vuelta entera muy lenta la segunda,
+  // consecuencia directa de la primera) es tan extrema frente a boxes/SC/VSC
+  // (segundos) que dejarlas dentro del calculo de escala, aunque sea sin
   // marcar, inutiliza el grafico entero pase lo que pase con los otros
-  // filtros. Por eso queda SIEMPRE fuera de la escala (ver dibujarGrafico) y
-  // su propio boton solo controla si se dibuja o se oculta del todo.
+  // filtros. Por eso quedan SIEMPRE fuera de la escala (ver dibujarGrafico) y
+  // su propio boton solo controla si se dibujan o se ocultan del todo -
+  // "activo" en su boton representa "las he ocultado" (una desviacion
+  // deliberada del comportamiento por defecto), no "se muestran" (que es el
+  // estado por defecto sin tocar nada) - mismo criterio visual que el resto
+  // de botones (sin pulsar = comportamiento por defecto).
   var mostrarBanderaRoja = true;
+  var mostrarVueltaFormacion = true;
   var pilotoActual = null;
 
   // Tooltip propio en vez de <title> nativo de SVG: el nativo tarda casi un
@@ -123,12 +129,12 @@
   }
 
   function estaExcluidoPorFiltro(punto) {
-    // punto = [vuelta, tiempo, boxes, safety_car, vsc, bandera_roja] (ver
-    // datos_grafico en generar_paginas.py). Una vuelta puede pertenecer a
-    // mas de una categoria a la vez (p.ej. una parada en boxes durante un
-    // VSC) - basta con que UNA de sus categorias este marcada para
-    // recortar. bandera_roja no entra aqui (ver mostrarBanderaRoja / nota
-    // en la declaracion de variables mas arriba).
+    // punto = [vuelta, tiempo, boxes, safety_car, vsc, bandera_roja,
+    // vuelta_formacion] (ver datos_grafico en generar_paginas.py). Una
+    // vuelta puede pertenecer a mas de una categoria a la vez (p.ej. una
+    // parada en boxes durante un VSC) - basta con que UNA de sus categorias
+    // este marcada para recortar. bandera_roja/vuelta_formacion no entran
+    // aqui (ver mostrarBanderaRoja/mostrarVueltaFormacion mas arriba).
     return (categoriasRecorte.has('boxes') && punto[2])
       || (categoriasRecorte.has('safety_car') && punto[3])
       || (categoriasRecorte.has('vsc') && punto[4]);
@@ -140,6 +146,7 @@
     if (punto[3]) claves.push('safety_car');
     if (punto[4]) claves.push('vsc');
     if (punto[5]) claves.push('bandera_roja');
+    if (punto[6]) claves.push('vuelta_formacion');
     return claves;
   }
 
@@ -148,9 +155,11 @@
     // activado) - mismo criterio que el sombreado de fila en gapchart.html/
     // laptimes.html/laps.html: es informacion de contexto, no algo que haya
     // que "activar" para verla. Prioridad cuando una vuelta pertenece a mas
-    // de una categoria a la vez: bandera roja > Safety Car > VSC > boxes
-    // (de la mas rara/severa a la mas frecuente).
+    // de una categoria a la vez: bandera roja > vuelta de formacion >
+    // Safety Car > VSC > boxes (las 2 ligadas a una suspension de carrera
+    // primero, luego de la mas rara/severa a la mas frecuente).
     if (punto[5]) return 'punto-bandera-roja';
+    if (punto[6]) return 'punto-vuelta-formacion';
     if (punto[3]) return 'punto-safety-car';
     if (punto[4]) return 'punto-vsc';
     if (punto[2]) return 'punto-boxes';
@@ -162,10 +171,13 @@
     if (!piloto) return;
     pilotoActual = numero;
     if (figura) { figura.classList.remove('oculto'); }
-    // Si el boton de bandera roja esta desactivado, esas vueltas se quitan
-    // del todo (ni linea ni punto) en vez de intentar dibujarlas fuera de
-    // escala - ver la nota de mostrarBanderaRoja mas arriba.
-    var puntos = mostrarBanderaRoja ? piloto.vueltas : piloto.vueltas.filter(function (p) { return !p[5]; });
+    // Si el boton de bandera roja/vuelta de formacion esta desactivado
+    // (mostrar*=false), esas vueltas se quitan del todo (ni linea ni punto)
+    // en vez de intentar dibujarlas fuera de escala - ver la nota junto a
+    // mostrarBanderaRoja mas arriba.
+    var puntos = piloto.vueltas
+      .filter(function (p) { return mostrarBanderaRoja || !p[5]; })
+      .filter(function (p) { return mostrarVueltaFormacion || !p[6]; });
     var vueltasNums = puntos.map(function (p) { return p[0]; });
     var tiempos = puntos.map(function (p) { return p[1]; });
     var vMin = Math.min.apply(null, vueltasNums);
@@ -177,29 +189,40 @@
     var tMaxReal = Math.max.apply(null, tiempos);
     if (vMin === vMax) { vMax = vMin + 1; }
 
-    // bandera_roja queda SIEMPRE fuera del calculo de escala (aunque se
-    // dibuje, si mostrarBanderaRoja es true) - su magnitud (minutos) frente
-    // al resto (segundos) significa que dejarla "incluida" arruina la
-    // escala aunque no este marcada por su propio filtro. boxes/safety_car/
-    // vsc solo se excluyen del calculo si su boton respectivo esta activo.
-    var puntosIncluidosPorCategoria = puntos.filter(function (p) { return !p[5] && !estaExcluidoPorFiltro(p); });
+    // bandera_roja y vuelta_formacion quedan SIEMPRE fuera del calculo de
+    // escala (aunque se dibujen, si mostrar* es true) - su magnitud frente
+    // al resto significa que dejarlas "incluidas" arruina la escala aunque
+    // no esten marcadas por su propio filtro. boxes/safety_car/vsc solo se
+    // excluyen del calculo si su boton respectivo esta activo - por eso
+    // "Todas" (ver CATEGORIAS_RECORTE_TODAS) nunca necesita incluirlas: ya
+    // estan excluidas siempre, no son una exclusion "opcional" mas.
+    var puntosIncluidosPorCategoria = puntos.filter(function (p) { return !p[5] && !p[6] && !estaExcluidoPorFiltro(p); });
     var tiemposIncluidosPorCategoria = puntosIncluidosPorCategoria.map(function (p) { return p[1]; });
-    var techoNatural = tiemposIncluidosPorCategoria.length
+    var tMax = tiemposIncluidosPorCategoria.length
       ? Math.max.apply(null, tiemposIncluidosPorCategoria) * 1.03
       : tMaxReal;
-    // Tope duro adicional: el eje nunca se estira mas de un 10% por encima
-    // del minimo (redondeado hacia arriba a un entero) - sin este tope, una
-    // vuelta anomala SIN categoria conocida (p.ej. una vuelta de
-    // recuperacion tras un reinicio de bandera roja, que no es boxes/SC/
-    // VSC/bandera_roja en si misma) seguia dominando el grafico aunque
-    // estuviera fuera de cualquier filtro activo - ver el caso real que
-    // motivo este ajuste en la documentacion del proyecto.
-    var techoTope = Math.ceil(tMin * 1.10);
-    var tMax = Math.min(techoNatural, techoTope);
+    // Con "Todas" activo (los 5 botones pulsados a la vez, ver
+    // actualizarBotonesRecorte) se añade ademas un tope duro: el eje nunca
+    // se estira mas de un 10% por encima del minimo (redondeado hacia
+    // arriba a un entero) - sin este tope, una vuelta anomala SIN
+    // categoria conocida (p.ej. una segunda vuelta de recuperacion
+    // recogiendo ritmo justo despues de la de formacion, que no es
+    // ninguna de las 5 categorias en si misma) seguiria dominando el
+    // grafico pese a tener TODO excluido/oculto. Fuera de "Todas" NO se
+    // aplica este tope - cada boton debe tener un efecto visible y
+    // predecible por si solo, sin que un tope fijo lo enmascare (ver
+    // documentacion del proyecto, el primer intento de tope siempre activo
+    // dejaba los botones individuales sin ningun efecto perceptible).
+    var todoActivo = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
+      && !mostrarBanderaRoja && !mostrarVueltaFormacion;
+    if (todoActivo) {
+      var techoTope = Math.ceil(tMin * 1.10);
+      tMax = Math.min(tMax, techoTope);
+    }
     if (tMin === tMax) { tMax = tMin + 1; }
-    // hayRecorte se decide DESPUES de fijar tMax (no solo por categoria):
-    // cualquier vuelta que supere el techo final, tenga o no una categoria
-    // conocida, necesita el tratamiento visual de "fuera de escala".
+    // hayRecorte se decide DESPUES de fijar tMax: cualquier vuelta que
+    // supere el techo final necesita el tratamiento visual de "fuera de
+    // escala", sea cual sea la razon de su exclusion.
     var hayRecorte = puntos.some(function (p) { return p[1] > tMax; });
 
     var izq = 46, der = 10, arr = hayRecorte ? 24 : 10, abj = 28;
@@ -245,9 +268,9 @@
     var etiquetasEjeY = { es: 'Segundos', en: 'Seconds', fr: 'Secondes' };
     var etiquetasVuelta = { es: 'Vuelta ', en: 'Lap ', fr: 'Tour ' };
     var etiquetasCategoria = {
-      es: { boxes: 'boxes', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'bandera roja' },
-      en: { boxes: 'pit stop', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'red flag' },
-      fr: { boxes: 'stands', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'drapeau rouge' }
+      es: { boxes: 'boxes', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'bandera roja', vuelta_formacion: 'vuelta de formación' },
+      en: { boxes: 'pit stop', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'red flag', vuelta_formacion: 'formation lap' },
+      fr: { boxes: 'stands', safety_car: 'Safety Car', vsc: 'VSC', bandera_roja: 'drapeau rouge', vuelta_formacion: 'tour de formation' }
     };
     var etiquetaEjeX = etiquetasEjeX[idioma] || etiquetasEjeX.en;
     var etiquetaEjeY = etiquetasEjeY[idioma] || etiquetasEjeY.en;
@@ -323,9 +346,23 @@
       var categoria = boton.getAttribute('data-categoria');
       var activa;
       if (categoria === 'todas') {
-        activa = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); });
+        // "Todas" representa literalmente los 5 botones pulsados a la vez
+        // (boxes/safety_car/vsc excluidos de la escala + bandera_roja/
+        // vuelta_formacion ocultas), no solo los 3 primeros - si no,
+        // pulsar esos 3 sin tocar los otros 2 marca "Todas" como activa
+        // sin que el usuario los haya seleccionado de verdad (bug real,
+        // ver commit).
+        activa = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
+          && !mostrarBanderaRoja && !mostrarVueltaFormacion;
       } else if (categoria === 'bandera_roja') {
-        activa = mostrarBanderaRoja;
+        // "activo" (pulsado) representa que el usuario la ha OCULTADO - el
+        // estado por defecto (mostrada) no debe verse como "pulsado", igual
+        // que ningun otro boton empieza pulsado sin que el usuario haga
+        // nada. Evita ademas que "Todas" parezca activarse sola al pulsar
+        // solo los otros 3 (bug real, ver commit).
+        activa = !mostrarBanderaRoja;
+      } else if (categoria === 'vuelta_formacion') {
+        activa = !mostrarVueltaFormacion;
       } else {
         activa = categoriasRecorte.has(categoria);
       }
@@ -337,12 +374,17 @@
     boton.addEventListener('click', function () {
       var categoria = boton.getAttribute('data-categoria');
       if (categoria === 'todas') {
-        var todasActivas = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); });
+        var todasActivas = CATEGORIAS_RECORTE_TODAS.every(function (c) { return categoriasRecorte.has(c); })
+          && !mostrarBanderaRoja && !mostrarVueltaFormacion;
         CATEGORIAS_RECORTE_TODAS.forEach(function (c) {
           if (todasActivas) { categoriasRecorte.delete(c); } else { categoriasRecorte.add(c); }
         });
+        mostrarBanderaRoja = todasActivas;
+        mostrarVueltaFormacion = todasActivas;
       } else if (categoria === 'bandera_roja') {
         mostrarBanderaRoja = !mostrarBanderaRoja;
+      } else if (categoria === 'vuelta_formacion') {
+        mostrarVueltaFormacion = !mostrarVueltaFormacion;
       } else if (categoriasRecorte.has(categoria)) {
         categoriasRecorte.delete(categoria);
       } else {
@@ -353,7 +395,8 @@
     });
   });
 
-  // Refleja el estado inicial (bandera roja mostrada por defecto) en cuanto
-  // carga la pagina, sin esperar a un primer click.
+  // Refleja el estado inicial (ningun boton pulsado, bandera roja/vuelta de
+  // formacion mostradas por defecto) en cuanto carga la pagina, sin esperar
+  // a un primer click.
   actualizarBotonesRecorte();
 })();
