@@ -173,6 +173,7 @@ header.sitio .selector-carreras a.activa { box-shadow: 0 0 0 2px var(--link); }
 .cabecera-equipo { font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
 .piloto-leyenda strong { color: var(--text-primary); }
 .bandera { width: 16px; height: 12px; margin-right: 5px; vertical-align: middle; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px var(--border); }
+.bandera-extra { width: auto; object-fit: contain; border-radius: 0; box-shadow: none; background: var(--surface-1); }
 .leyenda-colores {
   flex: 0 0 auto; margin-left: auto; align-self: flex-end;
   display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: flex-end;
