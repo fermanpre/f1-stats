@@ -87,7 +87,14 @@
   // punto sigue mostrando siempre su categoria (boxes/SC/VSC/bandera roja/
   // vuelta de formacion), este o no activo el recorte.
   var recortarActivo = false;
-  var pilotoActual = null;
+  // Selección de la comparativa: array (no Set, para conservar el orden de
+  // clic en la leyenda de chips) de dorsales como string - 1 solo elemento
+  // reproduce exactamente el comportamiento de antes (un único piloto),
+  // varios activan el modo comparativa (líneas superpuestas, cada una con
+  // el color de equipo/piloto de datosPilotos[numero].colorClase en vez
+  // del var(--link) fijo de antes).
+  var pilotosSeleccionados = [];
+  var leyendaComparativa = document.getElementById('leyenda-comparativa');
 
   // Tooltip propio en vez de <title> nativo de SVG: el nativo tarda casi un
   // segundo en aparecer (y en algunos navegadores no llega a mostrarse), asi
@@ -159,14 +166,38 @@
     return '';
   }
 
-  function dibujarGrafico(numero) {
-    var piloto = datosPilotos[numero];
-    if (!piloto) return;
-    pilotoActual = numero;
+  function alternarPiloto(numero) {
+    var indice = pilotosSeleccionados.indexOf(numero);
+    if (indice === -1) {
+      pilotosSeleccionados.push(numero);
+    } else {
+      pilotosSeleccionados.splice(indice, 1);
+    }
+    dibujarGrafico();
+  }
+
+  function dibujarGrafico() {
+    var seleccion = pilotosSeleccionados
+      .map(function (numero) { return datosPilotos[numero] ? { numero: numero, datos: datosPilotos[numero] } : null; })
+      .filter(Boolean);
+
+    if (!seleccion.length) {
+      if (figura) { figura.classList.add('oculto'); }
+      if (leyendaComparativa) { leyendaComparativa.classList.add('oculta'); leyendaComparativa.innerHTML = ''; }
+      document.querySelectorAll('tr[data-driver]').forEach(function (fila) { fila.classList.remove('seleccionada'); });
+      return;
+    }
     if (figura) { figura.classList.remove('oculto'); }
-    var puntos = piloto.vueltas;
-    var vueltasNums = puntos.map(function (p) { return p[0]; });
-    var tiempos = puntos.map(function (p) { return p[1]; });
+
+    // Union de las vueltas de TODOS los pilotos seleccionados - el resto
+    // de este bloque de escala (vMin/vMax/tMin/tMax/recorte) es exactamente
+    // el mismo cálculo que con un único piloto, ahora sobre el conjunto
+    // combinado en vez de sobre las vueltas de uno solo.
+    var todosPuntos = [];
+    seleccion.forEach(function (s) { todosPuntos = todosPuntos.concat(s.datos.vueltas); });
+
+    var vueltasNums = todosPuntos.map(function (p) { return p[0]; });
+    var tiempos = todosPuntos.map(function (p) { return p[1]; });
     var vMin = Math.min.apply(null, vueltasNums);
     var vMax = Math.max.apply(null, vueltasNums);
     // Redondeado hacia abajo a un entero (eje mas limpio, p.ej. "74" en vez
@@ -181,7 +212,7 @@
     // vuelta entera muy lenta como consecuencia directa) es tan extrema
     // frente al resto que dejarlas "incluidas" arruina el grafico en
     // cualquier circunstancia, no solo cuando el usuario pide recortar.
-    var puntosSinBanderaRoja = puntos.filter(function (p) { return !p[5] && !p[6]; });
+    var puntosSinBanderaRoja = todosPuntos.filter(function (p) { return !p[5] && !p[6]; });
     var tiemposSinBanderaRoja = puntosSinBanderaRoja.map(function (p) { return p[1]; });
     var techoSinBanderaRoja = tiemposSinBanderaRoja.length
       ? Math.max.apply(null, tiemposSinBanderaRoja) * 1.03
@@ -195,7 +226,7 @@
       // (redondeado hacia arriba a un entero), para que una vuelta anomala
       // SIN categoria conocida (p.ej. una vuelta de recuperacion no
       // clasificada) no pueda seguir dominando el grafico.
-      var limpias = puntos.filter(function (p) { return !esVueltaAnomala(p); }).map(function (p) { return p[1]; });
+      var limpias = todosPuntos.filter(function (p) { return !esVueltaAnomala(p); }).map(function (p) { return p[1]; });
       var techoNatural = limpias.length ? Math.max.apply(null, limpias) * 1.03 : techoSinBanderaRoja;
       var techoTope = Math.ceil(tMin * 1.10);
       tMax = Math.min(techoNatural, techoTope);
@@ -204,7 +235,7 @@
     // hayRecorte se decide DESPUES de fijar tMax: cualquier vuelta que
     // supere el techo final necesita el tratamiento visual de "fuera de
     // escala", sea cual sea la razon de su exclusion.
-    var hayRecorte = puntos.some(function (p) { return p[1] > tMax; });
+    var hayRecorte = todosPuntos.some(function (p) { return p[1] > tMax; });
 
     var izq = 46, der = 10, arr = hayRecorte ? 24 : 10, abj = 28;
     var anchoTotal = 640, altoTotal = 220;
@@ -216,15 +247,16 @@
     function yRecortada(tiempo) { return Math.max(arr + 6, y(tiempo)); }
 
     var idioma = document.documentElement.getAttribute('data-lang') || 'en';
-    var puntosSvg = puntos.map(function (p) { return x(p[0]).toFixed(1) + ',' + yRecortada(p[1]).toFixed(1); }).join(' ');
 
     // Bandas verticales de fondo marcando en que vueltas hubo Safety Car o
     // VSC (una franja por vuelta, ancho = un paso de vuelta completo) - se
     // dibujan antes que la rejilla para que las lineas de guia se sigan
     // viendo por encima, mismo patron de color (tokens *-bg) que el resto
-    // del sitio.
+    // del sitio. SC/VSC es un estado de la CARRERA, no del piloto, asi que
+    // basta con las vueltas del primer piloto seleccionado (misma vuelta,
+    // mismo dato, para cualquiera de los pilotos en pista a la vez).
     var svgInterno = '';
-    puntos.forEach(function (p) {
+    seleccion[0].datos.vueltas.forEach(function (p) {
       var claseBanda = p[3] ? 'grafico-banda-safety-car' : (p[4] ? 'grafico-banda-vsc' : null);
       if (!claseBanda) return;
       var xIzq = x(p[0] - 0.5);
@@ -259,38 +291,51 @@
     var etiquetasCategoriaIdioma = etiquetasCategoria[idioma] || etiquetasCategoria.en;
     var ejeYx = izq - 34, ejeYy = arr + altoPlot / 2;
 
-    svgInterno += '<polyline points="' + puntosSvg + '" class="grafico-linea"></polyline>';
+    // Una línea + un juego de puntos por piloto seleccionado, cada uno con
+    // su colorClase (equipo/piloto, ver generar_paginas.clase_color_piloto)
+    // - con un único piloto es visualmente idéntico a como era antes (una
+    // sola línea), simplemente ya no hace falta un caso especial para ello.
+    seleccion.forEach(function (s) {
+      var puntosSvg = s.datos.vueltas.map(function (p) { return x(p[0]).toFixed(1) + ',' + yRecortada(p[1]).toFixed(1); }).join(' ');
+      svgInterno += '<polyline points="' + puntosSvg + '" class="grafico-linea ' + s.datos.colorClase + '"></polyline>';
+    });
 
-    puntos.forEach(function (p) {
-      var esRecortado = hayRecorte && p[1] > tMax;
-      var px = x(p[0]).toFixed(1);
-      var py = yRecortada(p[1]).toFixed(1);
-      var claseColor = claseColorCategoria(p);
-      var clase = (esRecortado ? 'grafico-punto-recortado' : 'grafico-punto') + (claseColor ? ' ' + claseColor : '');
-      var radio = esRecortado ? 3 : 2.5;
-      var claves = categoriasDePunto(p);
-      var sufijoCategoria = claves.length
-        ? ' (' + claves.map(function (c) { return etiquetasCategoriaIdioma[c]; }).join(', ') + ')'
-        : '';
-      var textoTooltip = etiquetaVuelta + p[0] + ': ' + formatearTiempoJs(p[1]) + sufijoCategoria;
-      svgInterno += '<circle cx="' + px + '" cy="' + py + '" r="' + radio + '" class="' + clase + '" data-tooltip="' + textoTooltip + '"></circle>';
+    seleccion.forEach(function (s) {
+      var prefijoPiloto = seleccion.length > 1 ? s.datos.codigo + ' \u00b7 ' : '';
+      s.datos.vueltas.forEach(function (p) {
+        var esRecortado = hayRecorte && p[1] > tMax;
+        var px = x(p[0]).toFixed(1);
+        var py = yRecortada(p[1]).toFixed(1);
+        var claseCategoria = claseColorCategoria(p);
+        var clase = (esRecortado ? 'grafico-punto-recortado' : 'grafico-punto') + ' ' + s.datos.colorClase + (claseCategoria ? ' ' + claseCategoria : '');
+        var radio = esRecortado ? 3 : 2.5;
+        var claves = categoriasDePunto(p);
+        var sufijoCategoria = claves.length
+          ? ' (' + claves.map(function (c) { return etiquetasCategoriaIdioma[c]; }).join(', ') + ')'
+          : '';
+        var textoTooltip = prefijoPiloto + etiquetaVuelta + p[0] + ': ' + formatearTiempoJs(p[1]) + sufijoCategoria;
+        svgInterno += '<circle cx="' + px + '" cy="' + py + '" r="' + radio + '" class="' + clase + '" data-tooltip="' + textoTooltip + '"></circle>';
+      });
     });
 
     if (hayRecorte) {
       var ultimoLabelX = -Infinity;
-      puntos.forEach(function (p) {
-        if (p[1] > tMax) {
-          var pxLabel = x(p[0]);
-          // Si el siguiente pico queda demasiado cerca en horizontal del
-          // anterior, se omite su etiqueta de texto (el punto y su tooltip
-          // al pasar el ratón siguen mostrando el valor exacto) para que no
-          // se solapen dos números.
-          if (pxLabel - ultimoLabelX > 20) {
-            var claseColorLabel = claseColorCategoria(p);
-            svgInterno += '<text x="' + pxLabel.toFixed(1) + '" y="' + (arr - 4) + '" class="grafico-etiqueta-recorte' + (claseColorLabel ? ' ' + claseColorLabel : '') + '" text-anchor="middle">' + p[1].toFixed(1) + '</text>';
-            ultimoLabelX = pxLabel;
+      seleccion.forEach(function (s) {
+        s.datos.vueltas.forEach(function (p) {
+          if (p[1] > tMax) {
+            var pxLabel = x(p[0]);
+            // Si el siguiente pico queda demasiado cerca en horizontal del
+            // anterior (de cualquier piloto de la comparativa, no solo el
+            // mismo), se omite su etiqueta de texto (el punto y su tooltip
+            // al pasar el ratón siguen mostrando el valor exacto) para que
+            // no se solapen dos números.
+            if (pxLabel - ultimoLabelX > 20) {
+              var claseColorLabel = claseColorCategoria(p);
+              svgInterno += '<text x="' + pxLabel.toFixed(1) + '" y="' + (arr - 4) + '" class="grafico-etiqueta-recorte' + (claseColorLabel ? ' ' + claseColorLabel : '') + '" text-anchor="middle">' + p[1].toFixed(1) + '</text>';
+              ultimoLabelX = pxLabel;
+            }
           }
-        }
+        });
       });
       svgInterno += '<line x1="' + (izq - 5) + '" x2="' + (izq + 3) + '" y1="' + (arr + 10) + '" y2="' + (arr + 4) + '" class="grafico-quiebre-eje"></line>';
       svgInterno += '<line x1="' + (izq - 5) + '" x2="' + (izq + 3) + '" y1="' + (arr + 15) + '" y2="' + (arr + 9) + '" class="grafico-quiebre-eje"></line>';
@@ -301,24 +346,45 @@
     svg.innerHTML = svgInterno;
 
     if (tituloGrafico) {
-      tituloGrafico.textContent = piloto.codigo + ' \u00b7 ' + piloto.nombre + (piloto.equipo ? ' \u00b7 ' + piloto.equipo : '');
+      if (seleccion.length === 1) {
+        var unico = seleccion[0].datos;
+        tituloGrafico.textContent = unico.codigo + ' \u00b7 ' + unico.nombre + (unico.equipo ? ' \u00b7 ' + unico.equipo : '');
+      } else {
+        var etiquetasComparando = { es: 'Comparando ' + seleccion.length + ' pilotos', en: 'Comparing ' + seleccion.length + ' drivers', fr: 'Comparaison de ' + seleccion.length + ' pilotes' };
+        tituloGrafico.textContent = etiquetasComparando[idioma] || etiquetasComparando.en;
+      }
+    }
+
+    if (leyendaComparativa) {
+      leyendaComparativa.classList.remove('oculta');
+      leyendaComparativa.innerHTML = seleccion.map(function (s) {
+        return '<span class="chip-comparativa ' + s.datos.colorClase + '" data-driver="' + s.numero + '">'
+          + '<span class="chip-swatch"></span>' + s.datos.codigo + ' <span class="chip-quitar">&times;</span></span>';
+      }).join('');
     }
 
     document.querySelectorAll('tr[data-driver]').forEach(function (fila) {
-      fila.classList.toggle('seleccionada', fila.getAttribute('data-driver') === String(numero));
+      fila.classList.toggle('seleccionada', pilotosSeleccionados.indexOf(fila.getAttribute('data-driver')) !== -1);
     });
   }
 
   document.querySelectorAll('.nombre-piloto-clicable').forEach(function (enlace) {
     enlace.addEventListener('click', function (evento) {
       evento.preventDefault();
-      dibujarGrafico(enlace.getAttribute('data-driver'));
+      alternarPiloto(enlace.getAttribute('data-driver'));
     });
   });
 
+  if (leyendaComparativa) {
+    leyendaComparativa.addEventListener('click', function (evento) {
+      var chip = evento.target.closest('.chip-comparativa');
+      if (chip) { alternarPiloto(chip.getAttribute('data-driver')); }
+    });
+  }
+
   document.querySelectorAll('.opcion-idioma').forEach(function (boton) {
     boton.addEventListener('click', function () {
-      if (pilotoActual !== null) dibujarGrafico(pilotoActual);
+      if (pilotosSeleccionados.length) dibujarGrafico();
     });
   });
 
@@ -326,7 +392,7 @@
     botonRecorte.addEventListener('click', function () {
       recortarActivo = !recortarActivo;
       botonRecorte.classList.toggle('activo', recortarActivo);
-      if (pilotoActual !== null) dibujarGrafico(pilotoActual);
+      if (pilotosSeleccionados.length) dibujarGrafico();
     });
   }
 })();

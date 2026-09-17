@@ -1,3 +1,4 @@
+
 :root {
   color-scheme: light;
   --surface-1: #fcfcfb;
@@ -210,23 +211,7 @@ td.bandera-roja { background: var(--bandera-roja-bg); color: var(--bandera-roja)
 td.vuelta-formacion { background: var(--vuelta-formacion-bg); color: var(--vuelta-formacion); font-style: italic; }
 .leyenda { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
 .leyenda span.marca-color { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
-header.sitio .acciones {
-  display: flex; align-items: center; gap: 8px;
-  /* En las páginas de carrera, header.sitio tiene un 3er hijo de por medio
-     (selector-carreras, con hasta 23 chips) que fuerza el ajuste de línea
-     en casi cualquier ancho - sin este margen, cuando .acciones cae solo
-     en su propia línea, "justify-content: space-between" del contenedor
-     lo deja pegado a la izquierda (único elemento de esa línea) en vez de
-     a la derecha. margin-left: auto lo empuja al extremo derecho de
-     cualquier línea en la que acabe, haya envuelto o no. */
-  margin-left: auto;
-}
-.enlace-autor {
-  display: flex; align-items: center; color: var(--text-secondary);
-  border: 1px solid var(--border); background: var(--surface-1);
-  border-radius: 6px; padding: 6px; line-height: 0;
-}
-.enlace-autor:hover { color: var(--link); box-shadow: 0 0 0 1px var(--link); }
+header.sitio .acciones { display: flex; align-items: center; gap: 8px; }
 .boton-tema {
   border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
   border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer;
@@ -286,6 +271,120 @@ p.subtitulo.sugerencia { font-style: italic; margin-top: -8px; }
 .grafico-quiebre-eje { stroke: var(--text-muted); stroke-width: 1.5; }
 .grafico-punto { fill: var(--link); cursor: default; transition: r 0.1s; }
 .grafico-punto:hover { r: 5; fill: var(--race-best); }
+.grafico-linea.eq-red_bull-a { stroke: var(--eq-red_bull-a); }
+.grafico-punto.eq-red_bull-a, .grafico-punto-recortado.eq-red_bull-a { fill: var(--eq-red_bull-a); }
+.chip-comparativa.eq-red_bull-a .chip-swatch { background: var(--eq-red_bull-a); }
+.grafico-linea.eq-red_bull-b { stroke: var(--eq-red_bull-b); }
+.grafico-punto.eq-red_bull-b, .grafico-punto-recortado.eq-red_bull-b { fill: var(--eq-red_bull-b); }
+.chip-comparativa.eq-red_bull-b .chip-swatch { background: var(--eq-red_bull-b); }
+.grafico-linea.eq-red_bull_junior-a { stroke: var(--eq-red_bull_junior-a); }
+.grafico-punto.eq-red_bull_junior-a, .grafico-punto-recortado.eq-red_bull_junior-a { fill: var(--eq-red_bull_junior-a); }
+.chip-comparativa.eq-red_bull_junior-a .chip-swatch { background: var(--eq-red_bull_junior-a); }
+.grafico-linea.eq-red_bull_junior-b { stroke: var(--eq-red_bull_junior-b); }
+.grafico-punto.eq-red_bull_junior-b, .grafico-punto-recortado.eq-red_bull_junior-b { fill: var(--eq-red_bull_junior-b); }
+.chip-comparativa.eq-red_bull_junior-b .chip-swatch { background: var(--eq-red_bull_junior-b); }
+.grafico-linea.eq-ferrari-a { stroke: var(--eq-ferrari-a); }
+.grafico-punto.eq-ferrari-a, .grafico-punto-recortado.eq-ferrari-a { fill: var(--eq-ferrari-a); }
+.chip-comparativa.eq-ferrari-a .chip-swatch { background: var(--eq-ferrari-a); }
+.grafico-linea.eq-ferrari-b { stroke: var(--eq-ferrari-b); }
+.grafico-punto.eq-ferrari-b, .grafico-punto-recortado.eq-ferrari-b { fill: var(--eq-ferrari-b); }
+.chip-comparativa.eq-ferrari-b .chip-swatch { background: var(--eq-ferrari-b); }
+.grafico-linea.eq-mercedes-a { stroke: var(--eq-mercedes-a); }
+.grafico-punto.eq-mercedes-a, .grafico-punto-recortado.eq-mercedes-a { fill: var(--eq-mercedes-a); }
+.chip-comparativa.eq-mercedes-a .chip-swatch { background: var(--eq-mercedes-a); }
+.grafico-linea.eq-mercedes-b { stroke: var(--eq-mercedes-b); }
+.grafico-punto.eq-mercedes-b, .grafico-punto-recortado.eq-mercedes-b { fill: var(--eq-mercedes-b); }
+.chip-comparativa.eq-mercedes-b .chip-swatch { background: var(--eq-mercedes-b); }
+.grafico-linea.eq-mclaren-a { stroke: var(--eq-mclaren-a); }
+.grafico-punto.eq-mclaren-a, .grafico-punto-recortado.eq-mclaren-a { fill: var(--eq-mclaren-a); }
+.chip-comparativa.eq-mclaren-a .chip-swatch { background: var(--eq-mclaren-a); }
+.grafico-linea.eq-mclaren-b { stroke: var(--eq-mclaren-b); }
+.grafico-punto.eq-mclaren-b, .grafico-punto-recortado.eq-mclaren-b { fill: var(--eq-mclaren-b); }
+.chip-comparativa.eq-mclaren-b .chip-swatch { background: var(--eq-mclaren-b); }
+.grafico-linea.eq-williams-a { stroke: var(--eq-williams-a); }
+.grafico-punto.eq-williams-a, .grafico-punto-recortado.eq-williams-a { fill: var(--eq-williams-a); }
+.chip-comparativa.eq-williams-a .chip-swatch { background: var(--eq-williams-a); }
+.grafico-linea.eq-williams-b { stroke: var(--eq-williams-b); }
+.grafico-punto.eq-williams-b, .grafico-punto-recortado.eq-williams-b { fill: var(--eq-williams-b); }
+.chip-comparativa.eq-williams-b .chip-swatch { background: var(--eq-williams-b); }
+.grafico-linea.eq-alpine-a { stroke: var(--eq-alpine-a); }
+.grafico-punto.eq-alpine-a, .grafico-punto-recortado.eq-alpine-a { fill: var(--eq-alpine-a); }
+.chip-comparativa.eq-alpine-a .chip-swatch { background: var(--eq-alpine-a); }
+.grafico-linea.eq-alpine-b { stroke: var(--eq-alpine-b); }
+.grafico-punto.eq-alpine-b, .grafico-punto-recortado.eq-alpine-b { fill: var(--eq-alpine-b); }
+.chip-comparativa.eq-alpine-b .chip-swatch { background: var(--eq-alpine-b); }
+.grafico-linea.eq-renault-a { stroke: var(--eq-renault-a); }
+.grafico-punto.eq-renault-a, .grafico-punto-recortado.eq-renault-a { fill: var(--eq-renault-a); }
+.chip-comparativa.eq-renault-a .chip-swatch { background: var(--eq-renault-a); }
+.grafico-linea.eq-renault-b { stroke: var(--eq-renault-b); }
+.grafico-punto.eq-renault-b, .grafico-punto-recortado.eq-renault-b { fill: var(--eq-renault-b); }
+.chip-comparativa.eq-renault-b .chip-swatch { background: var(--eq-renault-b); }
+.grafico-linea.eq-lotus-a { stroke: var(--eq-lotus-a); }
+.grafico-punto.eq-lotus-a, .grafico-punto-recortado.eq-lotus-a { fill: var(--eq-lotus-a); }
+.chip-comparativa.eq-lotus-a .chip-swatch { background: var(--eq-lotus-a); }
+.grafico-linea.eq-lotus-b { stroke: var(--eq-lotus-b); }
+.grafico-punto.eq-lotus-b, .grafico-punto-recortado.eq-lotus-b { fill: var(--eq-lotus-b); }
+.chip-comparativa.eq-lotus-b .chip-swatch { background: var(--eq-lotus-b); }
+.grafico-linea.eq-aston_martin-a { stroke: var(--eq-aston_martin-a); }
+.grafico-punto.eq-aston_martin-a, .grafico-punto-recortado.eq-aston_martin-a { fill: var(--eq-aston_martin-a); }
+.chip-comparativa.eq-aston_martin-a .chip-swatch { background: var(--eq-aston_martin-a); }
+.grafico-linea.eq-aston_martin-b { stroke: var(--eq-aston_martin-b); }
+.grafico-punto.eq-aston_martin-b, .grafico-punto-recortado.eq-aston_martin-b { fill: var(--eq-aston_martin-b); }
+.chip-comparativa.eq-aston_martin-b .chip-swatch { background: var(--eq-aston_martin-b); }
+.grafico-linea.eq-racing_point-a { stroke: var(--eq-racing_point-a); }
+.grafico-punto.eq-racing_point-a, .grafico-punto-recortado.eq-racing_point-a { fill: var(--eq-racing_point-a); }
+.chip-comparativa.eq-racing_point-a .chip-swatch { background: var(--eq-racing_point-a); }
+.grafico-linea.eq-racing_point-b { stroke: var(--eq-racing_point-b); }
+.grafico-punto.eq-racing_point-b, .grafico-punto-recortado.eq-racing_point-b { fill: var(--eq-racing_point-b); }
+.chip-comparativa.eq-racing_point-b .chip-swatch { background: var(--eq-racing_point-b); }
+.grafico-linea.eq-force_india-a { stroke: var(--eq-force_india-a); }
+.grafico-punto.eq-force_india-a, .grafico-punto-recortado.eq-force_india-a { fill: var(--eq-force_india-a); }
+.chip-comparativa.eq-force_india-a .chip-swatch { background: var(--eq-force_india-a); }
+.grafico-linea.eq-force_india-b { stroke: var(--eq-force_india-b); }
+.grafico-punto.eq-force_india-b, .grafico-punto-recortado.eq-force_india-b { fill: var(--eq-force_india-b); }
+.chip-comparativa.eq-force_india-b .chip-swatch { background: var(--eq-force_india-b); }
+.grafico-linea.eq-haas-a { stroke: var(--eq-haas-a); }
+.grafico-punto.eq-haas-a, .grafico-punto-recortado.eq-haas-a { fill: var(--eq-haas-a); }
+.chip-comparativa.eq-haas-a .chip-swatch { background: var(--eq-haas-a); }
+.grafico-linea.eq-haas-b { stroke: var(--eq-haas-b); }
+.grafico-punto.eq-haas-b, .grafico-punto-recortado.eq-haas-b { fill: var(--eq-haas-b); }
+.chip-comparativa.eq-haas-b .chip-swatch { background: var(--eq-haas-b); }
+.grafico-linea.eq-sauber-a { stroke: var(--eq-sauber-a); }
+.grafico-punto.eq-sauber-a, .grafico-punto-recortado.eq-sauber-a { fill: var(--eq-sauber-a); }
+.chip-comparativa.eq-sauber-a .chip-swatch { background: var(--eq-sauber-a); }
+.grafico-linea.eq-sauber-b { stroke: var(--eq-sauber-b); }
+.grafico-punto.eq-sauber-b, .grafico-punto-recortado.eq-sauber-b { fill: var(--eq-sauber-b); }
+.chip-comparativa.eq-sauber-b .chip-swatch { background: var(--eq-sauber-b); }
+.grafico-linea.eq-audi-a { stroke: var(--eq-audi-a); }
+.grafico-punto.eq-audi-a, .grafico-punto-recortado.eq-audi-a { fill: var(--eq-audi-a); }
+.chip-comparativa.eq-audi-a .chip-swatch { background: var(--eq-audi-a); }
+.grafico-linea.eq-audi-b { stroke: var(--eq-audi-b); }
+.grafico-punto.eq-audi-b, .grafico-punto-recortado.eq-audi-b { fill: var(--eq-audi-b); }
+.chip-comparativa.eq-audi-b .chip-swatch { background: var(--eq-audi-b); }
+.grafico-linea.eq-cadillac-a { stroke: var(--eq-cadillac-a); }
+.grafico-punto.eq-cadillac-a, .grafico-punto-recortado.eq-cadillac-a { fill: var(--eq-cadillac-a); }
+.chip-comparativa.eq-cadillac-a .chip-swatch { background: var(--eq-cadillac-a); }
+.grafico-linea.eq-cadillac-b { stroke: var(--eq-cadillac-b); }
+.grafico-punto.eq-cadillac-b, .grafico-punto-recortado.eq-cadillac-b { fill: var(--eq-cadillac-b); }
+.chip-comparativa.eq-cadillac-b .chip-swatch { background: var(--eq-cadillac-b); }
+.grafico-linea.eq-caterham-a { stroke: var(--eq-caterham-a); }
+.grafico-punto.eq-caterham-a, .grafico-punto-recortado.eq-caterham-a { fill: var(--eq-caterham-a); }
+.chip-comparativa.eq-caterham-a .chip-swatch { background: var(--eq-caterham-a); }
+.grafico-linea.eq-caterham-b { stroke: var(--eq-caterham-b); }
+.grafico-punto.eq-caterham-b, .grafico-punto-recortado.eq-caterham-b { fill: var(--eq-caterham-b); }
+.chip-comparativa.eq-caterham-b .chip-swatch { background: var(--eq-caterham-b); }
+.grafico-linea.eq-marussia-a { stroke: var(--eq-marussia-a); }
+.grafico-punto.eq-marussia-a, .grafico-punto-recortado.eq-marussia-a { fill: var(--eq-marussia-a); }
+.chip-comparativa.eq-marussia-a .chip-swatch { background: var(--eq-marussia-a); }
+.grafico-linea.eq-marussia-b { stroke: var(--eq-marussia-b); }
+.grafico-punto.eq-marussia-b, .grafico-punto-recortado.eq-marussia-b { fill: var(--eq-marussia-b); }
+.chip-comparativa.eq-marussia-b .chip-swatch { background: var(--eq-marussia-b); }
+.grafico-linea.eq-desconocido-a { stroke: var(--eq-desconocido-a); }
+.grafico-punto.eq-desconocido-a, .grafico-punto-recortado.eq-desconocido-a { fill: var(--eq-desconocido-a); }
+.chip-comparativa.eq-desconocido-a .chip-swatch { background: var(--eq-desconocido-a); }
+.grafico-linea.eq-desconocido-b { stroke: var(--eq-desconocido-b); }
+.grafico-punto.eq-desconocido-b, .grafico-punto-recortado.eq-desconocido-b { fill: var(--eq-desconocido-b); }
+.chip-comparativa.eq-desconocido-b .chip-swatch { background: var(--eq-desconocido-b); }
 /* Color por categoria (boxes/SC/VSC/bandera roja), independiente de si el
    punto esta o no fuera de escala - mismos tokens que el resto del sitio
    (filas de gapchart.html/laptimes.html/laps.html), asi una vuelta de
@@ -371,3 +470,54 @@ footer.sitio a { color: var(--text-muted); }
 .clasificacion-dos-columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 14px; }
 .clasificacion-dos-columnas table td, .clasificacion-dos-columnas table th { padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: left; }
 .clasificacion-dos-columnas table td:last-child, .clasificacion-dos-columnas table th:last-child { text-align: right; }
+.leyenda-comparativa { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; }
+.leyenda-comparativa.oculta { display: none; }
+.chip-comparativa {
+  display: flex; align-items: center; gap: 5px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+  border-radius: 12px; padding: 3px 9px 3px 6px; font-size: 12px; font-weight: 600;
+}
+.chip-comparativa:hover { background: var(--row-hover); }
+.chip-comparativa .chip-swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+.chip-comparativa .chip-quitar { color: var(--text-muted); font-weight: 700; }
+
+:root {
+  --eq-red_bull-a: #2B4B9B;
+  --eq-red_bull-b: #8A9CC8;
+  --eq-red_bull_junior-a: #6B5FC9;
+  --eq-red_bull_junior-b: #AEA7E1;
+  --eq-ferrari-a: #E8162B;
+  --eq-ferrari-b: #F27F8A;
+  --eq-mercedes-a: #00A19C;
+  --eq-mercedes-b: #73CBC9;
+  --eq-mclaren-a: #FF8700;
+  --eq-mclaren-b: #FFBD73;
+  --eq-williams-a: #29ABE2;
+  --eq-williams-b: #89D1EF;
+  --eq-alpine-a: #E0559E;
+  --eq-alpine-b: #EEA2CA;
+  --eq-renault-a: #D4B106;
+  --eq-renault-b: #E7D476;
+  --eq-lotus-a: #8A8B1F;
+  --eq-lotus-b: #BFBF84;
+  --eq-aston_martin-a: #0B8043;
+  --eq-aston_martin-b: #79B998;
+  --eq-racing_point-a: #F363B6;
+  --eq-racing_point-b: #F8A9D7;
+  --eq-force_india-a: #E8825A;
+  --eq-force_india-b: #F2BAA4;
+  --eq-haas-a: #A6492E;
+  --eq-haas-b: #CE9B8C;
+  --eq-sauber-a: #8A3B52;
+  --eq-sauber-b: #BF93A0;
+  --eq-audi-a: #7A6E85;
+  --eq-audi-b: #B6AFBC;
+  --eq-cadillac-a: #9B7229;
+  --eq-cadillac-b: #C8B189;
+  --eq-caterham-a: #4C7A27;
+  --eq-caterham-b: #9DB688;
+  --eq-marussia-a: #6B3B5C;
+  --eq-marussia-b: #AE93A5;
+  --eq-desconocido-a: #6B6B6B;
+  --eq-desconocido-b: #AEAEAE;
+}
