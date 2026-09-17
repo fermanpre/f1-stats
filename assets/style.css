@@ -210,7 +210,17 @@ td.bandera-roja { background: var(--bandera-roja-bg); color: var(--bandera-roja)
 td.vuelta-formacion { background: var(--vuelta-formacion-bg); color: var(--vuelta-formacion); font-style: italic; }
 .leyenda { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
 .leyenda span.marca-color { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
-header.sitio .acciones { display: flex; align-items: center; gap: 8px; }
+header.sitio .acciones {
+  display: flex; align-items: center; gap: 8px;
+  /* En las páginas de carrera, header.sitio tiene un 3er hijo de por medio
+     (selector-carreras, con hasta 23 chips) que fuerza el ajuste de línea
+     en casi cualquier ancho - sin este margen, cuando .acciones cae solo
+     en su propia línea, "justify-content: space-between" del contenedor
+     lo deja pegado a la izquierda (único elemento de esa línea) en vez de
+     a la derecha. margin-left: auto lo empuja al extremo derecho de
+     cualquier línea en la que acabe, haya envuelto o no. */
+  margin-left: auto;
+}
 .enlace-autor {
   display: flex; align-items: center; color: var(--text-secondary);
   border: 1px solid var(--border); background: var(--surface-1);
