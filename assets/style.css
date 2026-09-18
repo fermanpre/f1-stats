@@ -192,7 +192,16 @@ h2 { font-size: 16px; margin: 24px 0 10px; }
 h3 { font-size: 13px; margin: 0; font-weight: 700; color: var(--text-secondary); }
 p.subtitulo { color: var(--text-secondary); margin: 0 0 16px; font-size: 13px; }
 .tabla-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+/* border-collapse: separate (no collapse) a propósito - con bordes
+   colapsados, position:sticky en las celdas de columna fija (col-pegada)
+   se rompe en la mayoría de navegadores: al hacer scroll horizontal, el
+   contenido de las columnas de la derecha se dibuja POR ENCIMA de la
+   columna fija en vez de quedar detrás, más visible cuantas más columnas
+   tiene la tabla (laptimes.html, con 70+ vueltas, es donde más se nota).
+   border-spacing:0 evita el hueco visible entre celdas que "separate"
+   introduciría por su cuenta - con solo border-bottom en las celdas (sin
+   bordes laterales), el resultado visual es idéntico al de "collapse". */
+table { border-collapse: separate; border-spacing: 0; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--gridline); }
 th:first-child, td:first-child { text-align: left; }
 thead th {
