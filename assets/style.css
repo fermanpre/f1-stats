@@ -192,6 +192,23 @@ h2 { font-size: 16px; margin: 24px 0 10px; }
 h3 { font-size: 13px; margin: 0; font-weight: 700; color: var(--text-secondary); }
 p.subtitulo { color: var(--text-secondary); margin: 0 0 16px; font-size: 13px; }
 .tabla-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+/* laptimes.html: dos tablas en vez de una con columna "col-pegada" (ver
+   generar_paginas.generar_laptimes_html para el porqué - position:sticky
+   en <td> roto de forma reproducible en Chrome/Edge con 70+ columnas). La
+   tabla de nombres vive FUERA de .tabla-scroll (sin scroll horizontal
+   propio, así que no necesita estar pegada) y la de tiempos dentro, cada
+   una con su propio <thead>/<tbody> pero alineadas porque comparten el
+   mismo padding/altura de fila que el resto de tablas del sitio. */
+.tabla-fija-envoltorio {
+  display: flex; align-items: flex-start;
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.tabla-fija-envoltorio .tabla-scroll { flex: 1 1 auto; min-width: 0; border: none; border-radius: 0; }
+table.tabla-nombres { flex: 0 0 auto; width: auto; }
+table.tabla-nombres th, table.tabla-nombres td {
+  text-align: left; min-width: 150px; background: var(--surface-1);
+}
+table.tabla-nombres tbody tr:hover td { background: var(--row-hover); }
 /* border-collapse: separate (no collapse) a propósito - con bordes
    colapsados, position:sticky en las celdas de columna fija (col-pegada)
    se rompe en la mayoría de navegadores: al hacer scroll horizontal, el
