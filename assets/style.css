@@ -12,7 +12,14 @@
   --pit: #d03b3b;
   --pit-bg: rgba(208,59,59,0.10);
   --personal-best: #006300;
-  --race-best: #4a3aa7;
+  --race-best: #B0387A;
+  /* --mejor-de-la-vuelta ya no se usa en ninguna tabla (ver
+     td.mejor-vuelta/table.tabla-gapchart td.mejor-vuelta-todos): a
+     petición del usuario, "mejor tiempo de esa vuelta concreta entre
+     todos los pilotos" se marca solo con negrita, sin color propio, para
+     no competir visualmente con el verde/púrpura de mejor-piloto/mejor-
+     carrera y quedar más fiel al estilo clásico de Atlas F1. El token se
+     deja definido por si se retoma más adelante. */
   --mejor-de-la-vuelta: #2a78d6;
   --link: #2a78d6;
   --safety-car: #b8860b;
@@ -38,7 +45,7 @@
     --pit: #e66767;
     --pit-bg: rgba(230,103,103,0.14);
     --personal-best: #0ca30c;
-    --race-best: #9085e9;
+    --race-best: #CC7EA9;
     --mejor-de-la-vuelta: #3987e5;
     --link: #3987e5;
     --safety-car: #e0c02a;
@@ -64,7 +71,7 @@
   --pit: #e66767;
   --pit-bg: rgba(230,103,103,0.14);
   --personal-best: #0ca30c;
-  --race-best: #9085e9;
+  --race-best: #CC7EA9;
   --mejor-de-la-vuelta: #3987e5;
   --link: #3987e5;
   --safety-car: #e0c02a;
@@ -200,8 +207,8 @@ td.col-pegada, th.col-pegada {
 tbody tr:hover td.col-pegada { background: var(--row-hover); }
 td.pit { background: var(--pit-bg); color: var(--pit); font-weight: 600; }
 td.mejor-vuelta { font-weight: 700; }
-td.mejor-piloto { color: var(--personal-best); font-weight: 700; }
-td.mejor-carrera { color: var(--race-best); font-weight: 700; }
+td.mejor-piloto { color: var(--personal-best); }
+td.mejor-carrera { color: var(--race-best); }
 /* Columna entera (cabecera th incluida) de laptimes.html bajo SC/VSC -
    td.pit tiene prioridad visual si ambas aplican a la vez (declarada
    antes, y el fondo de pit es más específico del suceso puntual). */
@@ -433,7 +440,7 @@ tr.vsc-row td.col-pegada { background: var(--vsc-bg); }
 table.tabla-gapchart td.pit, table.tabla-gapchart td.pit span { color: var(--pit); }
 table.tabla-gapchart td.mejor-piloto, table.tabla-gapchart td.mejor-piloto span { color: var(--personal-best); }
 table.tabla-gapchart td.mejor-carrera, table.tabla-gapchart td.mejor-carrera span { color: var(--race-best); }
-table.tabla-gapchart td.mejor-vuelta-todos, table.tabla-gapchart td.mejor-vuelta-todos span { color: var(--mejor-de-la-vuelta); }
+table.tabla-gapchart td.mejor-vuelta-todos, table.tabla-gapchart td.mejor-vuelta-todos span { font-weight: 700; }
 table.tabla-gapchart span.cambio-pos { font-weight: 700; margin-left: 3px; }
 table.tabla-gapchart span.cambio-pos.positivo { color: var(--personal-best); }
 table.tabla-gapchart span.cambio-pos.negativo { color: var(--pit); }
