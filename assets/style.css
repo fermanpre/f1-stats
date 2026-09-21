@@ -535,6 +535,19 @@ footer.sitio a { color: var(--text-muted); }
 .chip-comparativa:hover { background: var(--row-hover); }
 .chip-comparativa .chip-swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
 .chip-comparativa .chip-quitar { color: var(--text-muted); font-weight: 700; }
+.banner-consentimiento {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 20px; background: var(--surface-1); border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.2); font-size: 13px; color: var(--text-secondary);
+}
+.banner-consentimiento p { margin: 0; flex: 1 1 260px; }
+.acciones-consentimiento { display: flex; gap: 8px; flex: 0 0 auto; }
+.acciones-consentimiento button {
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+  background: var(--surface-1); color: var(--text-secondary);
+}
+.acciones-consentimiento .aceptar-consentimiento { background: var(--link); color: #fff; border-color: var(--link); font-weight: 600; }
 
 :root {
   --eq-red_bull-a: #2B4B9B;

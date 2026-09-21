@@ -434,3 +434,66 @@
     });
   });
 })();
+
+(function () {
+  // Google Analytics (GA4) con consentimiento previo (RGPD/ePrivacy) - ver
+  // i18n.banner_consentimiento_html para el HTML del banner. A propósito
+  // NO se usa Google Consent Mode (cargar gtag en modo "denegado" por
+  // defecto y "conceder" luego): más simple y más claro no insertar el
+  // <script> de gtag.js EN ABSOLUTO hasta que el visitante pulsa
+  // "Aceptar" - nada que cargar, nada que trackear, hasta la aceptación
+  // explícita. allow_google_signals a false desactiva las señales de
+  // remarketing/cross-device de Google (el sitio no hace publicidad, no
+  // tiene sentido llevarlas activas). La elección (aceptado/rechazado) se
+  // recuerda en localStorage para no volver a preguntar en visitas
+  // siguientes.
+  var CLAVE_CONSENTIMIENTO = 'f1-consentimiento-analytics';
+  var ID_MEDICION = 'G-21ETXNM26Y';
+
+  function cargarGoogleAnalytics() {
+    var script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID_MEDICION;
+    document.head.appendChild(script);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('set', 'allow_google_signals', false);
+    window.gtag('config', ID_MEDICION);
+  }
+
+  var consentimiento = null;
+  try {
+    consentimiento = localStorage.getItem(CLAVE_CONSENTIMIENTO);
+  } catch (error) {
+    // Almacenamiento bloqueado (navegación privada, etc.) - se trata igual
+    // que "todavía sin elegir": se muestra el banner, pero al no poder
+    // recordar la respuesta, se volverá a mostrar en la siguiente visita.
+  }
+
+  if (consentimiento === 'aceptado') {
+    cargarGoogleAnalytics();
+    return;
+  }
+  if (consentimiento === 'rechazado') return;
+
+  var banner = document.querySelector('.banner-consentimiento');
+  if (!banner) return;
+  banner.hidden = false;
+
+  function elegir(valor) {
+    try {
+      localStorage.setItem(CLAVE_CONSENTIMIENTO, valor);
+    } catch (error) {
+      // Sin persistencia disponible - la elección de esta visita se
+      // respeta igualmente, solo que no se recordará la próxima vez.
+    }
+    banner.hidden = true;
+    if (valor === 'aceptado') cargarGoogleAnalytics();
+  }
+
+  var botonAceptar = banner.querySelector('.aceptar-consentimiento');
+  var botonRechazar = banner.querySelector('.rechazar-consentimiento');
+  if (botonAceptar) botonAceptar.addEventListener('click', function () { elegir('aceptado'); });
+  if (botonRechazar) botonRechazar.addEventListener('click', function () { elegir('rechazado'); });
+})();
