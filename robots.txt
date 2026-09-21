@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://fermanpre.github.io/f1-stats/sitemap.xml
