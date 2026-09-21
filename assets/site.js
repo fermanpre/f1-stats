@@ -396,3 +396,41 @@
     });
   }
 })();
+
+(function () {
+  // laptimes.html: tabla-nombres y tabla-tiempos son dos <table>
+  // independientes (ver estilos_comunes.CSS_COMPARTIDO, .tabla-fija-envoltorio,
+  // y generar_paginas.generar_laptimes_html para el porqué - position:sticky
+  // en <td> roto en Chrome/Edge con 70+ columnas). Aunque compartan
+  // exactamente el mismo CSS de fila, dos tablas calculadas por separado
+  // pueden redondear su alto de fila de forma distinta a nivel de
+  // sub-píxel (confirmado con DevTools: 34.3px frente a 33.8px en la
+  // misma fila, con las mismas reglas de padding/line-height en ambas) -
+  // un desajuste de apenas 0.5px por fila que, sumado a lo largo de toda
+  // la clasificación, termina siendo un escalón visible. No es algo que
+  // el CSS por sí solo pueda garantizar entre dos tablas separadas, así
+  // que aquí se sincroniza MIDIENDO de verdad tras el renderizado, en vez
+  // de calcular a ciegas.
+  var envoltorios = document.querySelectorAll('.tabla-fija-envoltorio');
+  envoltorios.forEach(function (envoltorio) {
+    var tablaNombres = envoltorio.querySelector('table.tabla-nombres');
+    var tablaTiempos = envoltorio.querySelector('table.tabla-tiempos');
+    if (!tablaNombres || !tablaTiempos) return;
+
+    function sincronizarPar(filaA, filaB) {
+      if (!filaA || !filaB) return;
+      filaA.style.height = '';
+      filaB.style.height = '';
+      var alto = Math.ceil(Math.max(filaA.getBoundingClientRect().height, filaB.getBoundingClientRect().height));
+      filaA.style.height = alto + 'px';
+      filaB.style.height = alto + 'px';
+    }
+
+    sincronizarPar(tablaNombres.querySelector('thead tr'), tablaTiempos.querySelector('thead tr'));
+    var filasNombres = tablaNombres.querySelectorAll('tbody tr');
+    var filasTiempos = tablaTiempos.querySelectorAll('tbody tr');
+    filasNombres.forEach(function (fila, indice) {
+      sincronizarPar(fila, filasTiempos[indice]);
+    });
+  });
+})();

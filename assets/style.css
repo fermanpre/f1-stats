@@ -209,19 +209,6 @@ table.tabla-nombres th, table.tabla-nombres td {
   text-align: left; min-width: 150px; background: var(--surface-1);
 }
 table.tabla-nombres tbody tr:hover td { background: var(--row-hover); }
-/* Altura de fila fija e IGUAL en las dos tablas (33px = 14px*1.5 de
-   line-height + 6px*2 de padding, ver "th, td" más abajo) - necesaria
-   porque son dos <table> independientes con su propio cálculo de altura
-   de fila; sin esto, cualquier contenido más alto en una sola de las dos
-   (p.ej. la píldora de "+N vuelta(s)"/"Retirado" de tabla-nombres, ver
-   pildora_estado en generar_paginas.py) desalinea esa fila frente a la
-   tabla de tiempos, y el desajuste se va acumulando fila a fila según
-   cuántas filas con píldora haya por encima (el escalón crece según se
-   baja en la clasificación, justo donde empiezan los dobles y
-   retirados). height en <tr> es una altura MÍNIMA
-   en table layout - mientras el contenido de ambas tablas quepa en 33px
-   (la píldora mide ~20px), las filas quedan pixel a pixel idénticas. */
-.tabla-fija-envoltorio tr { height: 33px; }
 /* border-collapse: separate (no collapse) a propósito - con bordes
    colapsados, position:sticky en las celdas de columna fija (col-pegada)
    se rompe en la mayoría de navegadores: al hacer scroll horizontal, el
@@ -295,7 +282,19 @@ html[data-lang="es"] .i18n-es { display: inline; }
 html[data-lang="es"] .i18n-en { display: none; }
 html[data-lang="fr"] .i18n-fr { display: inline; }
 html[data-lang="fr"] .i18n-en { display: none; }
-.pildora { display: inline-block; vertical-align: middle; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+/* line-height en px (no en múltiplo, ver "body") a propósito: un múltiplo
+   se escala con el font-size de LA PÍLDORA (11px), pero lo que hace falta
+   garantizar es que su caja (line-height + padding) quede POR DEBAJO de
+   la altura de línea del texto normal que la rodea (14px*1.5=21px, ver
+   "body" más arriba) - así, por especificación, nunca puede ser el
+   contenido más alto de esa línea ni ensanchar la fila. El primer intento
+   de fix (altura de fila fija en tr, forzada a un valor calculado a
+   mano) no bastaba: ese número era una suposición sobre la altura
+   "natural" de la fila que no tiene por qué coincidir con la que el
+   navegador calcula de verdad a partir de la fuente - en cambio, esto no
+   depende de adivinar ningún número, solo de que 14+2*2=18px sea menor
+   que 21px, cosa garantizada por la propia especificación. */
+.pildora { display: inline-block; vertical-align: middle; line-height: 14px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
 .pildora.retirado { background: var(--pit-bg); color: var(--pit); }
 .pildora.dns { background: var(--row-hover); color: var(--text-muted); }
 .filtro { margin-bottom: 10px; }
