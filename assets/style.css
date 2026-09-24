@@ -535,6 +535,17 @@ footer.sitio a { color: var(--text-muted); }
 .chip-comparativa:hover { background: var(--row-hover); }
 .chip-comparativa .chip-swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
 .chip-comparativa .chip-quitar { color: var(--text-muted); font-weight: 700; }
+.lista-changelog { display: flex; flex-direction: column; gap: 14px; }
+.entrada-changelog { border: 1px solid var(--border); border-radius: 8px; padding: 14px; background: var(--surface-1); }
+.entrada-changelog .fecha-changelog { color: var(--text-muted); font-size: 12px; font-weight: 600; }
+.entrada-changelog h3 { color: var(--text-primary); font-size: 14px; margin: 4px 0 8px; }
+.entrada-changelog ul { margin: 0; padding-left: 20px; }
+.entrada-changelog ul li { margin: 3px 0; }
+.entrada-changelog-automatica {
+  display: flex; align-items: baseline; gap: 10px; padding: 8px 14px;
+  font-size: 12px; color: var(--text-secondary);
+}
+.entrada-changelog-automatica .fecha-changelog { flex: 0 0 auto; }
 .banner-consentimiento {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
