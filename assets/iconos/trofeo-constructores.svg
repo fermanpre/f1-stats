@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 32" width="20" height="32">
+<title>Constructors' World Championship trophy</title>
+<defs>
+  <linearGradient id="plata" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="0" stop-color="#9aa0aa"/><stop offset=".22" stop-color="#eef0f3"/><stop offset=".5" stop-color="#b4bac4"/>
+    <stop offset=".72" stop-color="#6f7681"/><stop offset="1" stop-color="#c9cdd4"/>
+  </linearGradient>
+  <linearGradient id="oro" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="0" stop-color="#b8860b"/><stop offset=".5" stop-color="#f5d142"/><stop offset="1" stop-color="#b8860b"/>
+  </linearGradient>
+  <linearGradient id="negro" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="0" stop-color="#0d0d10"/><stop offset=".45" stop-color="#4a4d55"/><stop offset="1" stop-color="#0d0d10"/>
+  </linearGradient>
+</defs>
+<ellipse cx="10" cy="29.2" rx="8.4" ry="2.1" fill="url(#plata)" stroke="#5d626b" stroke-width=".5"/><ellipse cx="10" cy="28.4" rx="6.4" ry="1.3" fill="#d9dce2" stroke="#5d626b" stroke-width=".3"/>
+<path d="M5.3 28.2 L6.6 24.6 Q10 23.6 13.4 24.6 L14.7 28.2 Z" fill="url(#negro)" stroke="#000" stroke-width=".3"/>
+<path d="M7 27 L7.9 25.1 M9 27.4 L9.4 25 M11 27.4 L10.6 25 M13 27 L12.1 25.1" stroke="#8d929b" stroke-width=".35"/>
+<path d="M1.40 3.00 L1.73 3.50 L2.05 4.00 L2.37 4.50 L2.67 5.00 L2.96 5.50 L3.25 6.00 L3.53 6.50 L3.79 7.00 L4.05 7.50 L4.30 8.00 L4.54 8.50 L4.77 9.00 L5.00 9.50 L5.21 10.00 L5.41 10.50 L5.61 11.00 L5.80 11.50 L5.98 12.00 L6.15 12.50 L6.31 13.00 L6.46 13.50 L6.60 14.00 L6.74 14.50 L6.87 15.00 L6.98 15.50 L7.09 16.00 L7.20 16.50 L7.29 17.00 L7.37 17.50 L7.45 18.00 L7.52 18.50 L7.58 19.00 L7.64 19.50 L7.68 20.00 L7.72 20.50 L7.75 21.00 L7.77 21.50 L7.79 22.00 L7.80 22.50 L7.80 23.00 L12.20 23.00 L12.20 22.50 L12.21 22.00 L12.23 21.50 L12.25 21.00 L12.28 20.50 L12.32 20.00 L12.36 19.50 L12.42 19.00 L12.48 18.50 L12.55 18.00 L12.63 17.50 L12.71 17.00 L12.80 16.50 L12.91 16.00 L13.02 15.50 L13.13 15.00 L13.26 14.50 L13.40 14.00 L13.54 13.50 L13.69 13.00 L13.85 12.50 L14.02 12.00 L14.20 11.50 L14.39 11.00 L14.59 10.50 L14.79 10.00 L15.00 9.50 L15.23 9.00 L15.46 8.50 L15.70 8.00 L15.95 7.50 L16.21 7.00 L16.47 6.50 L16.75 6.00 L17.04 5.50 L17.33 5.00 L17.63 4.50 L17.95 4.00 L18.27 3.50 L18.60 3.00 Z" fill="url(#plata)" stroke="#5d626b" stroke-width=".45" stroke-linejoin="round"/>
+<path d="M1.1000000000000003 3.1 Q10 5.9 18.900000000000002 3.1 L18.400000000000002 1.9 Q10 4.4 1.6000000000000003 1.9 Z" fill="url(#negro)"/>
+<ellipse cx="10" cy="2.4" rx="8.799999999999999" ry="1.7" fill="url(#negro)" stroke="#000" stroke-width=".3"/>
+<ellipse cx="3.00" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="4.80" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="6.60" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="8.30" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="10.00" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="11.70" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="13.40" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="15.20" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/><ellipse cx="17.00" cy="2.7" rx=".75" ry="1.05" fill="#6a6e78"/>
+<ellipse cx="10" cy="2.2" rx="7.199999999999999" ry=".7" fill="#d9dce2"/>
+<rect x="6.09" y="5.50" width="1.9" height="1.6" rx=".25" fill="#c8102e" stroke="#3a3d44" stroke-width=".25"/><rect x="11.50" y="7.30" width="1.9" height="1.6" rx=".25" fill="#f2c200" stroke="#3a3d44" stroke-width=".25"/><rect x="7.05" y="9.10" width="1.9" height="1.6" rx=".25" fill="#1b8a3b" stroke="#3a3d44" stroke-width=".25"/><rect x="10.66" y="10.90" width="1.9" height="1.6" rx=".25" fill="#f4f4f4" stroke="#3a3d44" stroke-width=".25"/><rect x="7.76" y="12.70" width="1.9" height="1.6" rx=".25" fill="#1d1d22" stroke="#3a3d44" stroke-width=".25"/><rect x="10.07" y="14.50" width="1.9" height="1.6" rx=".25" fill="#ee7d11" stroke="#3a3d44" stroke-width=".25"/><rect x="8.23" y="16.30" width="1.9" height="1.6" rx=".25" fill="#2a5db0" stroke="#3a3d44" stroke-width=".25"/><rect x="9.73" y="18.10" width="1.9" height="1.6" rx=".25" fill="#c8102e" stroke="#3a3d44" stroke-width=".25"/>
+<rect x="7.20" y="22.20" width="1.1" height=".8" fill="#f4f4f4"/><rect x="8.30" y="22.20" width="1.1" height=".8" fill="#111"/><rect x="9.40" y="22.20" width="1.1" height=".8" fill="#f4f4f4"/><rect x="10.50" y="22.20" width="1.1" height=".8" fill="#111"/><rect x="11.60" y="22.20" width="1.1" height=".8" fill="#f4f4f4"/><rect x="12.70" y="22.20" width="1.1" height=".8" fill="#111"/><rect x="7.20" y="23.00" width="1.1" height=".8" fill="#111"/><rect x="8.30" y="23.00" width="1.1" height=".8" fill="#f4f4f4"/><rect x="9.40" y="23.00" width="1.1" height=".8" fill="#111"/><rect x="10.50" y="23.00" width="1.1" height=".8" fill="#f4f4f4"/><rect x="11.60" y="23.00" width="1.1" height=".8" fill="#111"/><rect x="12.70" y="23.00" width="1.1" height=".8" fill="#f4f4f4"/>
+</svg>
