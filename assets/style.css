@@ -1,0 +1,678 @@
+
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page-plane: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #565552;
+  --gridline: #e1e0d9;
+  --border: rgba(11,11,11,0.10);
+  --row-hover: rgba(11,11,11,0.04);
+  --pit: #d03b3b;
+  --pit-bg: rgba(208,59,59,0.10);
+  --personal-best: #006300;
+  --race-best: #B0387A;
+  /* --mejor-de-la-vuelta ya no se usa en ninguna tabla (ver
+     td.mejor-vuelta/table.tabla-gapchart td.mejor-vuelta-todos): a
+     petición del usuario, "mejor tiempo de esa vuelta concreta entre
+     todos los pilotos" se marca solo con negrita, sin color propio, para
+     no competir visualmente con el verde/púrpura de mejor-piloto/mejor-
+     carrera y quedar más fiel al estilo clásico de Atlas F1. El token se
+     deja definido por si se retoma más adelante. */
+  --mejor-de-la-vuelta: #2a78d6;
+  --link: #2a78d6;
+  --safety-car: #b8860b;
+  --safety-car-bg: rgba(230,181,30,0.20);
+  --vsc: #a15c07;
+  --vsc-bg: rgba(181,101,29,0.18);
+  --bandera-roja: #7a6a5a;
+  --bandera-roja-bg: rgba(122,106,90,0.16);
+  --vuelta-formacion: #4d6a8c;
+  --vuelta-formacion-bg: rgba(77,106,140,0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page-plane: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #9a988f;
+    --gridline: #2c2c2a;
+    --border: rgba(255,255,255,0.10);
+    --row-hover: rgba(255,255,255,0.06);
+    --pit: #e66767;
+    --pit-bg: rgba(230,103,103,0.14);
+    --personal-best: #0ca30c;
+    --race-best: #CC7EA9;
+    --mejor-de-la-vuelta: #3987e5;
+    --link: #3987e5;
+    --safety-car: #e0c02a;
+    --safety-car-bg: rgba(224,192,42,0.16);
+    --vsc: #d68a3a;
+    --vsc-bg: rgba(214,138,58,0.16);
+    --bandera-roja: #a89686;
+    --bandera-roja-bg: rgba(168,150,134,0.16);
+    --vuelta-formacion: #7fa8d9;
+    --vuelta-formacion-bg: rgba(127,168,217,0.14);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page-plane: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #9a988f;
+  --gridline: #2c2c2a;
+  --border: rgba(255,255,255,0.10);
+  --row-hover: rgba(255,255,255,0.06);
+  --pit: #e66767;
+  --pit-bg: rgba(230,103,103,0.14);
+  --personal-best: #0ca30c;
+  --race-best: #CC7EA9;
+  --mejor-de-la-vuelta: #3987e5;
+  --link: #3987e5;
+  --safety-car: #e0c02a;
+  --safety-car-bg: rgba(224,192,42,0.16);
+  --vsc: #d68a3a;
+  --vsc-bg: rgba(214,138,58,0.16);
+  --bandera-roja: #a89686;
+  --bandera-roja-bg: rgba(168,150,134,0.16);
+  --vuelta-formacion: #7fa8d9;
+  --vuelta-formacion-bg: rgba(127,168,217,0.14);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--page-plane);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { color: var(--link); }
+header.sitio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-1);
+  flex-wrap: wrap;
+}
+header.sitio .marca { font-weight: 700; font-size: 16px; }
+header.sitio .migas { color: var(--text-secondary); font-size: 13px; }
+header.sitio .migas a { color: var(--text-secondary); text-decoration: none; }
+header.sitio .migas a:hover { color: var(--link); }
+nav.vistas, nav.selector-temporadas {
+  display: flex;
+  gap: 4px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-1);
+  flex-wrap: wrap;
+}
+nav.vistas a, nav.selector-temporadas a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+nav.vistas a.activa, nav.selector-temporadas a.activa { background: var(--row-hover); color: var(--text-primary); }
+nav.vistas a:hover, nav.selector-temporadas a:hover { background: var(--row-hover); }
+nav.vistas .grupo-pdf { padding: 6px 12px; font-size: 13px; color: var(--text-muted); }
+nav.vistas .grupo-pdf a { color: var(--text-secondary); text-decoration: none; }
+nav.vistas .grupo-pdf a:hover { color: var(--link); text-decoration: underline; }
+header.sitio .selector-carreras {
+  /* Fila propia y DESPUÉS de las acciones (order), para que la cabecera de una carrera
+     quede como la de las demás páginas: título a la izquierda, idioma/tema a la
+     derecha y, debajo, las banderas del resto de carreras. */
+  flex: 1 1 100%;
+  order: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  min-width: 0;
+}
+header.sitio .selector-carreras a {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 41px;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 0 0 1px var(--border);
+}
+header.sitio .selector-carreras a img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+header.sitio .selector-carreras a span {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.45);
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+header.sitio .selector-carreras a:hover { box-shadow: 0 0 0 1px var(--link); }
+header.sitio .selector-carreras a.activa { box-shadow: 0 0 0 2px var(--link); }
+.leyenda-pilotos {
+  display: flex; flex-wrap: wrap; gap: 10px 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border); background: var(--surface-1);
+  font-size: 12px; color: var(--text-secondary);
+}
+.bloque-equipo { flex: 0 1 210px; min-width: 0; }
+.cabecera-equipo { font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.piloto-leyenda strong { color: var(--text-primary); }
+.bandera { width: 16px; height: 12px; margin-right: 5px; vertical-align: middle; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px var(--border); }
+.bandera-extra { width: auto; object-fit: contain; border-radius: 0; box-shadow: none; background: var(--surface-1); }
+.leyenda-colores {
+  flex: 0 0 auto; max-width: 100%; margin-left: auto; align-self: flex-end;
+  display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: flex-end;
+}
+main { padding: 20px; max-width: 2300px; margin: 0 auto; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 16px; margin: 24px 0 10px; }
+h3 { font-size: 13px; margin: 0; font-weight: 700; color: var(--text-secondary); }
+p.subtitulo { color: var(--text-secondary); margin: 0 0 16px; font-size: 13px; }
+.tabla-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+/* laptimes.html: dos tablas en vez de una con columna "col-pegada" (ver
+   generar_paginas.generar_laptimes_html para el porqué - position:sticky
+   en <td> roto de forma reproducible en Chrome/Edge con 70+ columnas). La
+   tabla de nombres vive FUERA de .tabla-scroll (sin scroll horizontal
+   propio, así que no necesita estar pegada) y la de tiempos dentro, cada
+   una con su propio <thead>/<tbody> pero alineadas porque comparten el
+   mismo padding/altura de fila que el resto de tablas del sitio. */
+.tabla-fija-envoltorio {
+  display: flex; align-items: flex-start;
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.tabla-fija-envoltorio .tabla-scroll { flex: 1 1 auto; min-width: 0; border: none; border-radius: 0; }
+table.tabla-nombres { flex: 0 0 auto; width: auto; }
+table.tabla-nombres th, table.tabla-nombres td {
+  text-align: left; min-width: 150px; background: var(--surface-1);
+}
+table.tabla-nombres tbody tr:hover td { background: var(--row-hover); }
+/* border-collapse: separate (no collapse) a propósito - con bordes
+   colapsados, position:sticky en las celdas de columna fija (col-pegada)
+   se rompe en la mayoría de navegadores: al hacer scroll horizontal, el
+   contenido de las columnas de la derecha se dibuja POR ENCIMA de la
+   columna fija en vez de quedar detrás, más visible cuantas más columnas
+   tiene la tabla (laptimes.html, con 70+ vueltas, es donde más se nota).
+   border-spacing:0 evita el hueco visible entre celdas que "separate"
+   introduciría por su cuenta - con solo border-bottom en las celdas (sin
+   bordes laterales), el resultado visual es idéntico al de "collapse". */
+table { border-collapse: separate; border-spacing: 0; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--gridline); }
+th:first-child, td:first-child { text-align: left; }
+thead th {
+  position: sticky; top: 0; background: var(--surface-1);
+  color: var(--text-secondary); font-weight: 600; font-size: 12px; z-index: 2;
+}
+tbody tr:hover { background: var(--row-hover); }
+td.col-pegada, th.col-pegada {
+  position: sticky; left: 0; background: var(--surface-1); z-index: 1;
+  text-align: left; min-width: 150px;
+  /* will-change:transform fuerza una capa de composición propia y
+     permanente para esta celda, en vez de que Chrome la promueva/despromueva
+     sobre la marcha durante el scroll - sin esto, en tablas con muchas
+     columnas (laptimes.html, 70+) el "tile" ya compuesto de la celda fija a
+     veces no se invalida al desplazar el contenido de detrás, dejando
+     restos visuales de una posición de scroll anterior mezclados con el
+     contenido actual (bug conocido de Chromium con position:sticky dentro
+     de <table>, no arreglable solo con border-collapse:separate). */
+  will-change: transform;
+  transform: translateZ(0);
+}
+tbody tr:hover td.col-pegada { background: var(--row-hover); }
+td.pit { background: var(--pit-bg); color: var(--pit); font-weight: 600; }
+td.mejor-vuelta { font-weight: 700; }
+td.mejor-piloto { color: var(--personal-best); }
+td.mejor-carrera { color: var(--race-best); }
+/* Columna entera (cabecera th incluida) de laptimes.html bajo SC/VSC -
+   td.pit tiene prioridad visual si ambas aplican a la vez (declarada
+   antes, y el fondo de pit es más específico del suceso puntual). */
+th.safety-car, td.safety-car { background: var(--safety-car-bg); }
+th.vsc, td.vsc { background: var(--vsc-bg); }
+td.bandera-roja { background: var(--bandera-roja-bg); color: var(--bandera-roja); font-style: italic; }
+td.vuelta-formacion { background: var(--vuelta-formacion-bg); color: var(--vuelta-formacion); font-style: italic; }
+.leyenda { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
+.leyenda span.marca-color { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+header.sitio .acciones { display: flex; align-items: center; flex-wrap: wrap; max-width: 100%; gap: 8px; order: 1; }
+.boton-tema {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+  border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer;
+}
+.selector-idioma { display: flex; gap: 4px; }
+.opcion-idioma {
+  display: flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+  border-radius: 6px; padding: 6px 8px; font-size: 12px; cursor: pointer;
+}
+.opcion-idioma.activa { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
+.bandera-boton { width: 14px; height: 10px; object-fit: cover; border-radius: 1px; box-shadow: 0 0 0 1px var(--border); }
+.selector-vista-indice { display: flex; gap: 4px; margin: 12px 0; }
+.opcion-vista-indice {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+  border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer;
+}
+.opcion-vista-indice.activa { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
+.tabla-carreras-alt { display: none; }
+.tabla-carreras-alt table td, .tabla-carreras-alt table th { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+html[data-vista-indice="tabla"] .tarjetas-carreras { display: none; }
+html[data-vista-indice="tabla"] .tabla-carreras-alt { display: block; }
+.i18n-es, .i18n-fr { display: none; }
+html[data-lang="es"] .i18n-es { display: inline; }
+html[data-lang="es"] .i18n-en { display: none; }
+html[data-lang="fr"] .i18n-fr { display: inline; }
+html[data-lang="fr"] .i18n-en { display: none; }
+/* line-height en px (no en múltiplo, ver "body") a propósito: un múltiplo
+   se escala con el font-size de LA PÍLDORA (11px), pero lo que hace falta
+   garantizar es que su caja (line-height + padding) quede POR DEBAJO de
+   la altura de línea del texto normal que la rodea (14px*1.5=21px, ver
+   "body" más arriba) - así, por especificación, nunca puede ser el
+   contenido más alto de esa línea ni ensanchar la fila. El primer intento
+   de fix (altura de fila fija en tr, forzada a un valor calculado a
+   mano) no bastaba: ese número era una suposición sobre la altura
+   "natural" de la fila que no tiene por qué coincidir con la que el
+   navegador calcula de verdad a partir de la fuente - en cambio, esto no
+   depende de adivinar ningún número, solo de que 14+2*2=18px sea menor
+   que 21px, cosa garantizada por la propia especificación. */
+.pildora { display: inline-block; vertical-align: middle; line-height: 14px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.pildora.retirado { background: var(--pit-bg); color: var(--pit); }
+.pildora.dns { background: var(--row-hover); color: var(--text-muted); }
+.filtro { margin-bottom: 10px; }
+.filtro input {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+  border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 260px;
+}
+p.subtitulo.sugerencia { font-style: italic; margin-top: -8px; }
+.grafico-piloto {
+  margin: 0 0 20px; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface-1);
+}
+.grafico-piloto.oculto { display: none; }
+.cabecera-grafico { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.grafico-piloto figcaption { font-weight: 700; color: var(--text-primary); font-size: 13px; }
+.filtros-recorte-grafico { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.opcion-recorte-grafico {
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+  border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer;
+}
+.opcion-recorte-grafico.activo { background: var(--row-hover); color: var(--text-primary); font-weight: 700; }
+#grafico-vueltas-svg { width: 100%; height: auto; max-height: 260px; }
+.grafico-linea { fill: none; stroke: var(--link); stroke-width: 2; }
+.grafico-gridline { stroke: var(--gridline); stroke-width: 1; }
+.grafico-etiqueta { fill: var(--text-muted); font-size: 9px; }
+.grafico-etiqueta-eje { fill: var(--text-secondary); font-size: 10px; font-weight: 600; }
+.grafico-punto-recortado { fill: var(--pit); }
+.grafico-etiqueta-recorte { fill: var(--pit); font-size: 9px; font-weight: 700; }
+.grafico-quiebre-eje { stroke: var(--text-muted); stroke-width: 1.5; }
+.grafico-punto { fill: var(--link); cursor: default; transition: r 0.1s; }
+.grafico-punto:hover { r: 5; fill: var(--race-best); }
+.grafico-linea.eq-red_bull-a { stroke: var(--eq-red_bull-a); }
+.grafico-punto.eq-red_bull-a, .grafico-punto-recortado.eq-red_bull-a { fill: var(--eq-red_bull-a); }
+.chip-comparativa.eq-red_bull-a .chip-swatch { background: var(--eq-red_bull-a); }
+.grafico-linea.eq-red_bull-b { stroke: var(--eq-red_bull-b); }
+.grafico-punto.eq-red_bull-b, .grafico-punto-recortado.eq-red_bull-b { fill: var(--eq-red_bull-b); }
+.chip-comparativa.eq-red_bull-b .chip-swatch { background: var(--eq-red_bull-b); }
+.grafico-linea.eq-red_bull_junior-a { stroke: var(--eq-red_bull_junior-a); }
+.grafico-punto.eq-red_bull_junior-a, .grafico-punto-recortado.eq-red_bull_junior-a { fill: var(--eq-red_bull_junior-a); }
+.chip-comparativa.eq-red_bull_junior-a .chip-swatch { background: var(--eq-red_bull_junior-a); }
+.grafico-linea.eq-red_bull_junior-b { stroke: var(--eq-red_bull_junior-b); }
+.grafico-punto.eq-red_bull_junior-b, .grafico-punto-recortado.eq-red_bull_junior-b { fill: var(--eq-red_bull_junior-b); }
+.chip-comparativa.eq-red_bull_junior-b .chip-swatch { background: var(--eq-red_bull_junior-b); }
+.grafico-linea.eq-ferrari-a { stroke: var(--eq-ferrari-a); }
+.grafico-punto.eq-ferrari-a, .grafico-punto-recortado.eq-ferrari-a { fill: var(--eq-ferrari-a); }
+.chip-comparativa.eq-ferrari-a .chip-swatch { background: var(--eq-ferrari-a); }
+.grafico-linea.eq-ferrari-b { stroke: var(--eq-ferrari-b); }
+.grafico-punto.eq-ferrari-b, .grafico-punto-recortado.eq-ferrari-b { fill: var(--eq-ferrari-b); }
+.chip-comparativa.eq-ferrari-b .chip-swatch { background: var(--eq-ferrari-b); }
+.grafico-linea.eq-mercedes-a { stroke: var(--eq-mercedes-a); }
+.grafico-punto.eq-mercedes-a, .grafico-punto-recortado.eq-mercedes-a { fill: var(--eq-mercedes-a); }
+.chip-comparativa.eq-mercedes-a .chip-swatch { background: var(--eq-mercedes-a); }
+.grafico-linea.eq-mercedes-b { stroke: var(--eq-mercedes-b); }
+.grafico-punto.eq-mercedes-b, .grafico-punto-recortado.eq-mercedes-b { fill: var(--eq-mercedes-b); }
+.chip-comparativa.eq-mercedes-b .chip-swatch { background: var(--eq-mercedes-b); }
+.grafico-linea.eq-mclaren-a { stroke: var(--eq-mclaren-a); }
+.grafico-punto.eq-mclaren-a, .grafico-punto-recortado.eq-mclaren-a { fill: var(--eq-mclaren-a); }
+.chip-comparativa.eq-mclaren-a .chip-swatch { background: var(--eq-mclaren-a); }
+.grafico-linea.eq-mclaren-b { stroke: var(--eq-mclaren-b); }
+.grafico-punto.eq-mclaren-b, .grafico-punto-recortado.eq-mclaren-b { fill: var(--eq-mclaren-b); }
+.chip-comparativa.eq-mclaren-b .chip-swatch { background: var(--eq-mclaren-b); }
+.grafico-linea.eq-williams-a { stroke: var(--eq-williams-a); }
+.grafico-punto.eq-williams-a, .grafico-punto-recortado.eq-williams-a { fill: var(--eq-williams-a); }
+.chip-comparativa.eq-williams-a .chip-swatch { background: var(--eq-williams-a); }
+.grafico-linea.eq-williams-b { stroke: var(--eq-williams-b); }
+.grafico-punto.eq-williams-b, .grafico-punto-recortado.eq-williams-b { fill: var(--eq-williams-b); }
+.chip-comparativa.eq-williams-b .chip-swatch { background: var(--eq-williams-b); }
+.grafico-linea.eq-alpine-a { stroke: var(--eq-alpine-a); }
+.grafico-punto.eq-alpine-a, .grafico-punto-recortado.eq-alpine-a { fill: var(--eq-alpine-a); }
+.chip-comparativa.eq-alpine-a .chip-swatch { background: var(--eq-alpine-a); }
+.grafico-linea.eq-alpine-b { stroke: var(--eq-alpine-b); }
+.grafico-punto.eq-alpine-b, .grafico-punto-recortado.eq-alpine-b { fill: var(--eq-alpine-b); }
+.chip-comparativa.eq-alpine-b .chip-swatch { background: var(--eq-alpine-b); }
+.grafico-linea.eq-renault-a { stroke: var(--eq-renault-a); }
+.grafico-punto.eq-renault-a, .grafico-punto-recortado.eq-renault-a { fill: var(--eq-renault-a); }
+.chip-comparativa.eq-renault-a .chip-swatch { background: var(--eq-renault-a); }
+.grafico-linea.eq-renault-b { stroke: var(--eq-renault-b); }
+.grafico-punto.eq-renault-b, .grafico-punto-recortado.eq-renault-b { fill: var(--eq-renault-b); }
+.chip-comparativa.eq-renault-b .chip-swatch { background: var(--eq-renault-b); }
+.grafico-linea.eq-lotus-a { stroke: var(--eq-lotus-a); }
+.grafico-punto.eq-lotus-a, .grafico-punto-recortado.eq-lotus-a { fill: var(--eq-lotus-a); }
+.chip-comparativa.eq-lotus-a .chip-swatch { background: var(--eq-lotus-a); }
+.grafico-linea.eq-lotus-b { stroke: var(--eq-lotus-b); }
+.grafico-punto.eq-lotus-b, .grafico-punto-recortado.eq-lotus-b { fill: var(--eq-lotus-b); }
+.chip-comparativa.eq-lotus-b .chip-swatch { background: var(--eq-lotus-b); }
+.grafico-linea.eq-aston_martin-a { stroke: var(--eq-aston_martin-a); }
+.grafico-punto.eq-aston_martin-a, .grafico-punto-recortado.eq-aston_martin-a { fill: var(--eq-aston_martin-a); }
+.chip-comparativa.eq-aston_martin-a .chip-swatch { background: var(--eq-aston_martin-a); }
+.grafico-linea.eq-aston_martin-b { stroke: var(--eq-aston_martin-b); }
+.grafico-punto.eq-aston_martin-b, .grafico-punto-recortado.eq-aston_martin-b { fill: var(--eq-aston_martin-b); }
+.chip-comparativa.eq-aston_martin-b .chip-swatch { background: var(--eq-aston_martin-b); }
+.grafico-linea.eq-racing_point-a { stroke: var(--eq-racing_point-a); }
+.grafico-punto.eq-racing_point-a, .grafico-punto-recortado.eq-racing_point-a { fill: var(--eq-racing_point-a); }
+.chip-comparativa.eq-racing_point-a .chip-swatch { background: var(--eq-racing_point-a); }
+.grafico-linea.eq-racing_point-b { stroke: var(--eq-racing_point-b); }
+.grafico-punto.eq-racing_point-b, .grafico-punto-recortado.eq-racing_point-b { fill: var(--eq-racing_point-b); }
+.chip-comparativa.eq-racing_point-b .chip-swatch { background: var(--eq-racing_point-b); }
+.grafico-linea.eq-force_india-a { stroke: var(--eq-force_india-a); }
+.grafico-punto.eq-force_india-a, .grafico-punto-recortado.eq-force_india-a { fill: var(--eq-force_india-a); }
+.chip-comparativa.eq-force_india-a .chip-swatch { background: var(--eq-force_india-a); }
+.grafico-linea.eq-force_india-b { stroke: var(--eq-force_india-b); }
+.grafico-punto.eq-force_india-b, .grafico-punto-recortado.eq-force_india-b { fill: var(--eq-force_india-b); }
+.chip-comparativa.eq-force_india-b .chip-swatch { background: var(--eq-force_india-b); }
+.grafico-linea.eq-haas-a { stroke: var(--eq-haas-a); }
+.grafico-punto.eq-haas-a, .grafico-punto-recortado.eq-haas-a { fill: var(--eq-haas-a); }
+.chip-comparativa.eq-haas-a .chip-swatch { background: var(--eq-haas-a); }
+.grafico-linea.eq-haas-b { stroke: var(--eq-haas-b); }
+.grafico-punto.eq-haas-b, .grafico-punto-recortado.eq-haas-b { fill: var(--eq-haas-b); }
+.chip-comparativa.eq-haas-b .chip-swatch { background: var(--eq-haas-b); }
+.grafico-linea.eq-sauber-a { stroke: var(--eq-sauber-a); }
+.grafico-punto.eq-sauber-a, .grafico-punto-recortado.eq-sauber-a { fill: var(--eq-sauber-a); }
+.chip-comparativa.eq-sauber-a .chip-swatch { background: var(--eq-sauber-a); }
+.grafico-linea.eq-sauber-b { stroke: var(--eq-sauber-b); }
+.grafico-punto.eq-sauber-b, .grafico-punto-recortado.eq-sauber-b { fill: var(--eq-sauber-b); }
+.chip-comparativa.eq-sauber-b .chip-swatch { background: var(--eq-sauber-b); }
+.grafico-linea.eq-audi-a { stroke: var(--eq-audi-a); }
+.grafico-punto.eq-audi-a, .grafico-punto-recortado.eq-audi-a { fill: var(--eq-audi-a); }
+.chip-comparativa.eq-audi-a .chip-swatch { background: var(--eq-audi-a); }
+.grafico-linea.eq-audi-b { stroke: var(--eq-audi-b); }
+.grafico-punto.eq-audi-b, .grafico-punto-recortado.eq-audi-b { fill: var(--eq-audi-b); }
+.chip-comparativa.eq-audi-b .chip-swatch { background: var(--eq-audi-b); }
+.grafico-linea.eq-cadillac-a { stroke: var(--eq-cadillac-a); }
+.grafico-punto.eq-cadillac-a, .grafico-punto-recortado.eq-cadillac-a { fill: var(--eq-cadillac-a); }
+.chip-comparativa.eq-cadillac-a .chip-swatch { background: var(--eq-cadillac-a); }
+.grafico-linea.eq-cadillac-b { stroke: var(--eq-cadillac-b); }
+.grafico-punto.eq-cadillac-b, .grafico-punto-recortado.eq-cadillac-b { fill: var(--eq-cadillac-b); }
+.chip-comparativa.eq-cadillac-b .chip-swatch { background: var(--eq-cadillac-b); }
+.grafico-linea.eq-caterham-a { stroke: var(--eq-caterham-a); }
+.grafico-punto.eq-caterham-a, .grafico-punto-recortado.eq-caterham-a { fill: var(--eq-caterham-a); }
+.chip-comparativa.eq-caterham-a .chip-swatch { background: var(--eq-caterham-a); }
+.grafico-linea.eq-caterham-b { stroke: var(--eq-caterham-b); }
+.grafico-punto.eq-caterham-b, .grafico-punto-recortado.eq-caterham-b { fill: var(--eq-caterham-b); }
+.chip-comparativa.eq-caterham-b .chip-swatch { background: var(--eq-caterham-b); }
+.grafico-linea.eq-marussia-a { stroke: var(--eq-marussia-a); }
+.grafico-punto.eq-marussia-a, .grafico-punto-recortado.eq-marussia-a { fill: var(--eq-marussia-a); }
+.chip-comparativa.eq-marussia-a .chip-swatch { background: var(--eq-marussia-a); }
+.grafico-linea.eq-marussia-b { stroke: var(--eq-marussia-b); }
+.grafico-punto.eq-marussia-b, .grafico-punto-recortado.eq-marussia-b { fill: var(--eq-marussia-b); }
+.chip-comparativa.eq-marussia-b .chip-swatch { background: var(--eq-marussia-b); }
+.grafico-linea.eq-desconocido-a { stroke: var(--eq-desconocido-a); }
+.grafico-punto.eq-desconocido-a, .grafico-punto-recortado.eq-desconocido-a { fill: var(--eq-desconocido-a); }
+.chip-comparativa.eq-desconocido-a .chip-swatch { background: var(--eq-desconocido-a); }
+.grafico-linea.eq-desconocido-b { stroke: var(--eq-desconocido-b); }
+.grafico-punto.eq-desconocido-b, .grafico-punto-recortado.eq-desconocido-b { fill: var(--eq-desconocido-b); }
+.chip-comparativa.eq-desconocido-b .chip-swatch { background: var(--eq-desconocido-b); }
+/* Color por categoria (boxes/SC/VSC/bandera roja), independiente de si el
+   punto esta o no fuera de escala - mismos tokens que el resto del sitio
+   (filas de gapchart.html/laptimes.html/laps.html), asi una vuelta de
+   boxes/SC/VSC se distingue a simple vista sin necesitar activar su filtro. */
+.grafico-punto.punto-boxes, .grafico-punto-recortado.punto-boxes { fill: var(--pit); }
+.grafico-punto.punto-safety-car, .grafico-punto-recortado.punto-safety-car { fill: var(--safety-car); }
+.grafico-punto.punto-vsc, .grafico-punto-recortado.punto-vsc { fill: var(--vsc); }
+.grafico-punto.punto-bandera-roja, .grafico-punto-recortado.punto-bandera-roja { fill: var(--bandera-roja); }
+.grafico-punto.punto-vuelta-formacion, .grafico-punto-recortado.punto-vuelta-formacion { fill: var(--vuelta-formacion); }
+.grafico-etiqueta-recorte.punto-boxes { fill: var(--pit); }
+.grafico-etiqueta-recorte.punto-safety-car { fill: var(--safety-car); }
+.grafico-etiqueta-recorte.punto-vsc { fill: var(--vsc); }
+.grafico-etiqueta-recorte.punto-bandera-roja { fill: var(--bandera-roja); }
+.grafico-etiqueta-recorte.punto-vuelta-formacion { fill: var(--vuelta-formacion); }
+/* Bandas verticales de fondo marcando en que vueltas hubo SC/VSC, mismo
+   patron de color (tokens *-bg) que el resto del sitio. */
+.grafico-banda-safety-car { fill: var(--safety-car-bg); }
+.grafico-banda-vsc { fill: var(--vsc-bg); }
+.grafico-piloto { position: relative; }
+.tooltip-grafico {
+  position: fixed; pointer-events: none; z-index: 50;
+  background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 8px; font-size: 12px; font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25); white-space: nowrap;
+}
+.tooltip-grafico.oculto { display: none; }
+a.nombre-piloto-clicable { color: var(--link); text-decoration: none; cursor: pointer; }
+a.nombre-piloto-clicable:hover { text-decoration: underline; }
+tr.seleccionada { background: var(--row-hover); }
+tr.seleccionada td.col-pegada { background: var(--row-hover); font-weight: 700; }
+table.tabla-gapchart th, table.tabla-gapchart td { text-align: center; }
+table.tabla-gapchart th.col-pegada, table.tabla-gapchart td.col-pegada { text-align: left; min-width: 60px; }
+table.tabla-gapchart td { padding: 4px 7px; }
+table.tabla-gapchart span.codigo-piloto { display: block; font-weight: 700; font-size: 11px; color: var(--text-secondary); }
+table.tabla-gapchart span.valor-piloto { display: block; }
+table.tabla-gapchart tr:target { outline: 2px solid var(--link); outline-offset: -2px; }
+table.tabla-gapchart tr.fila-parrilla { background: var(--row-hover); }
+table.tabla-gapchart tr.fila-parrilla td.col-pegada { background: var(--row-hover); font-style: italic; color: var(--text-muted); }
+table.tabla-gapchart tr.fila-parrilla td:not(.col-pegada) { border-bottom: 2px solid var(--border); }
+/* Filas safety-car-row/vsc-row: sin acotar a .tabla-gapchart - se
+   reutilizan igual en la tabla de ranking de vueltas de laps.html. */
+tr.safety-car-row { background: var(--safety-car-bg); }
+tr.safety-car-row td.col-pegada { background: var(--safety-car-bg); }
+tr.vsc-row { background: var(--vsc-bg); }
+tr.vsc-row td.col-pegada { background: var(--vsc-bg); }
+table.tabla-gapchart td.pit, table.tabla-gapchart td.pit span { color: var(--pit); }
+table.tabla-gapchart td.mejor-piloto, table.tabla-gapchart td.mejor-piloto span { color: var(--personal-best); }
+table.tabla-gapchart td.mejor-carrera, table.tabla-gapchart td.mejor-carrera span { color: var(--race-best); }
+table.tabla-gapchart td.mejor-vuelta-todos, table.tabla-gapchart td.mejor-vuelta-todos span { font-weight: 700; }
+/* Los span de la celda fijan su propio color, así que td.bandera-roja/td.vuelta-formacion
+   (reglas globales de fondo, color y cursiva) no los alcanzarían; los +1/-1 de cambio-pos
+   conservan su color, como ya ocurre con td.pit. */
+table.tabla-gapchart td.bandera-roja, table.tabla-gapchart td.bandera-roja span { color: var(--bandera-roja); }
+table.tabla-gapchart td.vuelta-formacion, table.tabla-gapchart td.vuelta-formacion span { color: var(--vuelta-formacion); }
+table.tabla-gapchart span.cambio-pos { font-weight: 700; margin-left: 3px; }
+table.tabla-gapchart span.cambio-pos.positivo { color: var(--personal-best); }
+table.tabla-gapchart span.cambio-pos.negativo { color: var(--pit); }
+footer.sitio {
+  padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;
+  border-top: 1px solid var(--border); margin-top: 30px;
+}
+footer.sitio a { color: var(--text-muted); }
+.tarjetas-carreras { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.tarjeta-carrera { border: 1px solid var(--border); border-radius: 8px; padding: 14px; background: var(--surface-1); }
+.tarjeta-carrera h3 { color: var(--text-primary); font-size: 14px; margin-bottom: 8px; }
+.tarjeta-carrera .enlaces { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; margin-top: 10px; }
+.tarjeta-carrera .campeones-temporada { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.tarjeta-carrera.tarjeta-ancha { grid-column: span 2; }
+.tarjeta-carrera.tarjeta-ancha table { width: 100%; }
+.tarjeta-carrera figure { margin: 0 0 10px; }
+.tarjeta-carrera img.imagen-circuito { display: block; width: 100%; max-height: 150px; object-fit: contain; background: var(--row-hover); border-radius: 6px; }
+/* Los planos de circuito son trazado oscuro sobre fondo claro/transparente
+   - en modo oscuro se invierten (mismo efecto que el texto negro sobre
+   blanco pasando a blanco sobre negro), con hue-rotate para que las
+   etiquetas de color del propio plano (sectores, zonas DRS...) mantengan
+   aproximadamente su tono en vez de invertirse también a su complementario. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tarjeta-carrera img.imagen-circuito { filter: invert(1) hue-rotate(180deg); }
+}
+:root[data-theme="dark"] .tarjeta-carrera img.imagen-circuito { filter: invert(1) hue-rotate(180deg); }
+.tarjeta-carrera img.imagen-piloto { display: block; width: 90px; height: 90px; object-fit: cover; border-radius: 6px; }
+.imagenes-pilotos { display: flex; gap: 10px; flex-wrap: wrap; }
+.imagenes-pilotos figure { margin: 0; width: 90px; }
+.atribucion-imagen { display: block; font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+.atribucion-imagen a { color: var(--text-muted); }
+.imagenes-escuderias { display: flex; gap: 10px; flex-wrap: wrap; }
+.imagenes-escuderias figure { margin: 0; width: 110px; }
+.imagenes-escuderias img.imagen-escuderia { display: block; width: 110px; height: 46px; object-fit: contain; background: #fff; border-radius: 6px; padding: 6px 8px; box-sizing: border-box; }
+.clasificacion-dos-columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 14px; }
+.clasificacion-dos-columnas table td, .clasificacion-dos-columnas table th { padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+.clasificacion-dos-columnas table td:last-child, .clasificacion-dos-columnas table th:last-child { text-align: right; }
+.leyenda-comparativa { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; }
+.leyenda-comparativa.oculta { display: none; }
+.chip-comparativa {
+  display: flex; align-items: center; gap: 5px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+  border-radius: 12px; padding: 3px 9px 3px 6px; font-size: 12px; font-weight: 600;
+}
+.chip-comparativa:hover { background: var(--row-hover); }
+.chip-comparativa .chip-swatch { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+.chip-comparativa .chip-quitar { color: var(--text-muted); font-weight: 700; }
+.lista-changelog { display: flex; flex-direction: column; gap: 14px; }
+.entrada-changelog { border: 1px solid var(--border); border-radius: 8px; padding: 14px; background: var(--surface-1); }
+.entrada-changelog .fecha-changelog { color: var(--text-muted); font-size: 12px; font-weight: 600; }
+.entrada-changelog h3 { color: var(--text-primary); font-size: 14px; margin: 4px 0 8px; }
+.entrada-changelog ul { margin: 0; padding-left: 20px; }
+.entrada-changelog ul li { margin: 3px 0; }
+.enlaces-contacto-autor { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.enlace-contacto-autor { display: inline-flex; align-items: center; gap: 8px; width: fit-content; color: var(--text-primary); text-decoration: none; }
+.enlace-contacto-autor:hover { color: var(--link); }
+.banner-consentimiento {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 20px; background: var(--surface-1); border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.2); font-size: 13px; color: var(--text-secondary);
+}
+/* [hidden] a secas (regla del navegador) empata en especificidad con la
+   regla de arriba (una clase = un atributo) y, en un empate, la hoja de
+   autor gana siempre a la del navegador - así que sin esto el banner se
+   veía SIEMPRE, ignorando el atributo hidden por completo (tanto el
+   estado inicial como el que pone site.js al aceptar/rechazar). Con el
+   selector [hidden] añadido a la propia clase, la especificidad sube
+   (clase + atributo) y gana sobre la regla de arriba sin más cambios. */
+.banner-consentimiento[hidden] { display: none; }
+.banner-consentimiento p { margin: 0; flex: 1 1 260px; }
+.acciones-consentimiento { display: flex; gap: 8px; flex: 0 0 auto; }
+.acciones-consentimiento button {
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer;
+  background: var(--surface-1); color: var(--text-secondary);
+}
+.acciones-consentimiento .aceptar-consentimiento { background: var(--link); color: #fff; border-color: var(--link); font-weight: 600; }
+
+:root {
+  --eq-red_bull-a: #2B4B9B;
+  --eq-red_bull-b: #8A9CC8;
+  --eq-red_bull_junior-a: #6B5FC9;
+  --eq-red_bull_junior-b: #AEA7E1;
+  --eq-ferrari-a: #E8162B;
+  --eq-ferrari-b: #F27F8A;
+  --eq-mercedes-a: #00A19C;
+  --eq-mercedes-b: #73CBC9;
+  --eq-mclaren-a: #FF8700;
+  --eq-mclaren-b: #FFBD73;
+  --eq-williams-a: #29ABE2;
+  --eq-williams-b: #89D1EF;
+  --eq-alpine-a: #E0559E;
+  --eq-alpine-b: #EEA2CA;
+  --eq-renault-a: #D4B106;
+  --eq-renault-b: #E7D476;
+  --eq-lotus-a: #8A8B1F;
+  --eq-lotus-b: #BFBF84;
+  --eq-aston_martin-a: #0B8043;
+  --eq-aston_martin-b: #79B998;
+  --eq-racing_point-a: #F363B6;
+  --eq-racing_point-b: #F8A9D7;
+  --eq-force_india-a: #E8825A;
+  --eq-force_india-b: #F2BAA4;
+  --eq-haas-a: #A6492E;
+  --eq-haas-b: #CE9B8C;
+  --eq-sauber-a: #8A3B52;
+  --eq-sauber-b: #BF93A0;
+  --eq-audi-a: #7A6E85;
+  --eq-audi-b: #B6AFBC;
+  --eq-cadillac-a: #9B7229;
+  --eq-cadillac-b: #C8B189;
+  --eq-caterham-a: #4C7A27;
+  --eq-caterham-b: #9DB688;
+  --eq-marussia-a: #6B3B5C;
+  --eq-marussia-b: #AE93A5;
+  --eq-desconocido-a: #6B6B6B;
+  --eq-desconocido-b: #AEAEAE;
+}
+/* Pantallas pequeñas (móviles en vertical, <= 640 px). El sitio es de escritorio
+   por diseño - tablas de 22 pilotos por 70 vueltas -, así que esto NO es una versión
+   móvil: solo evita que la página se rompa y hace usable lo básico. Todo lo de abajo
+   vive dentro de un @media: las reglas de escritorio no cambian. */
+@media (max-width: 640px) {
+  header.sitio { padding: 10px 12px; gap: 8px; }
+  /* Selector de carreras: una sola fila con scroll horizontal (site.js centra la
+     carrera activa) en vez de 4-5 filas de chips que se comen la primera pantalla. */
+  header.sitio .selector-carreras {
+    flex: 1 1 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start;
+    gap: 8px; padding: 2px 2px 8px; -webkit-overflow-scrolling: touch;
+  }
+  header.sitio .selector-carreras a { width: 56px; height: 40px; }
+  header.sitio .acciones { width: 100%; gap: 6px; }
+  .boton-tema, .boton-azar, .opcion-idioma, .opcion-vista-indice { min-height: 40px; }
+  .opcion-idioma { padding: 6px 10px; }
+  /* align-items: center: los enlaces de la barra suben a 11 px de relleno para poder
+     pulsarlos, pero el grupo "PDF: ..." conserva el suyo de 6 px y quedaba pegado arriba,
+     por encima de la línea de los enlaces. */
+  nav.vistas, nav.selector-temporadas { padding: 8px 12px; gap: 2px; align-items: center; }
+  nav.vistas a, nav.selector-temporadas a { padding: 11px 12px; }
+  .tarjeta-carrera .enlaces { gap: 2px 14px; }
+  .tarjeta-carrera .enlaces a { display: inline-block; padding: 9px 0; }
+  a.nombre-piloto-clicable { display: inline-block; padding: 5px 0; }
+  header.sitio .marca a, header.sitio .migas a { display: inline-block; padding: 8px 0; }
+  footer.sitio a { display: inline-block; padding: 10px 4px; }
+  .enlace-autor { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; }
+  .efemeride li a, .enlace-records a { display: inline-block; padding: 8px 0; }
+  /* Diferencias por vuelta: el código de 3 letras del piloto (11 px en escritorio) es lo único
+     que identifica de quién es cada celda. A 13 px la tabla no se ensancha (las columnas las
+     fija el valor, a 14 px) y cada fila solo gana 2-3 px. */
+  table.tabla-gapchart span.codigo-piloto { font-size: 13px; }
+  main { padding: 14px 12px; }
+  .banner-consentimiento { padding: 8px 12px; gap: 8px; font-size: 12px; }
+  .acciones-consentimiento button { padding: 8px 14px; min-height: 36px; }
+}
+
+/* Leyenda de equipos y de colores, sin tocar el HTML. Entre 476 y 640 px se queda como en
+   escritorio (los equipos en dos columnas); solo cuando ya no caben dos columnas (los
+   bloques de equipo miden 210 px: 2 x 210 + 16 + 2 x 20 de margen = 476 px, más unos 17 px
+   de la barra de scroll clásica, de ahí los 500) los equipos pasan a una franja con scroll
+   horizontal (fila 1) y la clave de colores va DEBAJO, en la fila 2 y justo antes de la
+   tabla. La clave es "sticky" para quedarse a la vista mientras se desplaza la franja. */
+@media (max-width: 500px) {
+  .leyenda-pilotos {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 200px; gap: 8px 14px;
+    align-items: start; overflow-x: auto; padding: 8px 12px; -webkit-overflow-scrolling: touch;
+    container-type: inline-size; /* para medir la clave de colores con cqw */
+  }
+  .bloque-equipo { grid-row: 1; }
+  .leyenda-colores {
+    grid-row: 2; grid-column: 1; position: sticky; left: 0; align-self: start;
+    /* max-width: none es imprescindible: el max-width: 100% de escritorio, dentro de la
+       rejilla, se mide contra la columna de 200 px y encogía la clave a esa anchura. El
+       ancho es el de la franja visible (cqw); la línea con vw es el respaldo para los
+       navegadores sin unidades de contenedor. */
+    max-width: none; width: min(calc(100vw - 24px), 560px); width: min(100cqw, 560px);
+    margin-left: 0; justify-content: flex-start;
+  }
+}
