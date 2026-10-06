@@ -19,9 +19,6 @@ website (atlasf1.com), rebuilt from scratch:
   this project could find, no other free site currently offers — most
   sites only show gaps in laps, or leave lapped drivers out entirely.
 
-Every number on the site is cross-checked against the official
-classification to the millisecond before being published.
-
 ### Coverage
 
 Seasons 2017–2025 are complete; 2026 is being built as the season is
@@ -63,9 +60,6 @@ mítica web **Atlas F1** (atlasf1.com), reconstruida desde cero:
   proyecto, no ofrece hoy gratis ningún otro sitio — la mayoría solo
   muestra la diferencia en vueltas, o directamente deja fuera a los
   doblados.
-
-Cada dato del sitio se contrasta con la clasificación oficial al
-milisegundo antes de publicarse.
 
 ### Cobertura
 
