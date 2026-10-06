@@ -22,6 +22,48 @@
 })();
 
 (function () {
+  var interruptor = document.querySelector('.interruptor-congelar');
+  if (!interruptor) return;
+  var etiquetas = document.querySelectorAll('.etiqueta-congelar');
+  var marco = document.querySelector('.tabla-scroll');
+  // Alturas de la cabecera y de la fila «Grid»: el CSS pega la segunda justo debajo de la primera.
+  function medir() {
+    var cabecera = document.querySelector('table.tabla-gapchart thead th');
+    var parrilla = document.querySelector('table.tabla-gapchart tr.fila-parrilla td');
+    if (!marco || !cabecera) return;
+    var alto = cabecera.offsetHeight;
+    marco.style.setProperty('--alto-cabecera', alto + 'px');
+    marco.style.setProperty('--alto-fijo', (alto + (parrilla ? parrilla.offsetHeight : 0)) + 'px');
+  }
+  function aplicar(congelado) {
+    document.documentElement.setAttribute('data-gap-congelado', congelado ? 'si' : 'no');
+    interruptor.setAttribute('aria-checked', congelado ? 'true' : 'false');
+    if (congelado) medir();
+  }
+  function cambiarA(congelado) {
+    try { localStorage.setItem('f1-gap-congelado', congelado ? 'si' : 'no'); } catch (e) {}
+    aplicar(congelado);
+    // Al congelar, la página se sitúa con el selector arriba: así la tabla enmarcada (y su barra horizontal) caben en la ventana.
+    var selector = document.querySelector('.selector-modo-gap');
+    if (congelado && selector && selector.scrollIntoView) {
+      var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      selector.scrollIntoView({ block: 'start', behavior: sinMovimiento ? 'auto' : 'smooth' });
+    }
+  }
+  var guardado = false;
+  try { guardado = localStorage.getItem('f1-gap-congelado') === 'si'; } catch (e) {}
+  aplicar(guardado);
+  window.addEventListener('resize', medir);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(medir);
+  interruptor.addEventListener('click', function () {
+    cambiarA(document.documentElement.getAttribute('data-gap-congelado') !== 'si');
+  });
+  etiquetas.forEach(function (etiqueta) {
+    etiqueta.addEventListener('click', function () { cambiarA(etiqueta.getAttribute('data-congelar-opcion') === 'si'); });
+  });
+})();
+
+(function () {
   // Selector de carreras con scroll horizontal (pantallas pequeñas, ver CSS_MOVIL): deja
   // la carrera activa centrada en vez de al principio de la fila.
   var activa = document.querySelector('.selector-carreras a.activa');
