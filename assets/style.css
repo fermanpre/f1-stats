@@ -257,7 +257,6 @@ th.vsc, td.vsc { background: var(--vsc-bg); }
 td.bandera-roja { background: var(--bandera-roja-bg); color: var(--bandera-roja); font-style: italic; }
 td.vuelta-formacion { background: var(--vuelta-formacion-bg); color: var(--vuelta-formacion); font-style: italic; }
 .leyenda { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
-.leyenda span.marca-color { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
 header.sitio .acciones { display: flex; align-items: center; flex-wrap: wrap; max-width: 100%; gap: 8px; order: 1; }
 .boton-tema {
   border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
