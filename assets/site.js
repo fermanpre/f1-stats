@@ -1,4 +1,27 @@
 (function () {
+  var interruptor = document.querySelector('.interruptor-gap');
+  if (!interruptor) return;
+  var etiquetas = document.querySelectorAll('.etiqueta-modo-gap');
+  function aplicarModo(modo) {
+    document.documentElement.setAttribute('data-gap-modo', modo);
+    interruptor.setAttribute('aria-checked', modo === 'total' ? 'true' : 'false');
+  }
+  function cambiarA(modo) {
+    try { localStorage.setItem('f1-gap-modo', modo); } catch (e) {}
+    aplicarModo(modo);
+  }
+  var guardado = 'diferencia';
+  try { guardado = localStorage.getItem('f1-gap-modo') || 'diferencia'; } catch (e) {}
+  aplicarModo(guardado);
+  interruptor.addEventListener('click', function () {
+    cambiarA(document.documentElement.getAttribute('data-gap-modo') === 'total' ? 'diferencia' : 'total');
+  });
+  etiquetas.forEach(function (etiqueta) {
+    etiqueta.addEventListener('click', function () { cambiarA(etiqueta.getAttribute('data-modo-opcion')); });
+  });
+})();
+
+(function () {
   // Selector de carreras con scroll horizontal (pantallas pequeñas, ver CSS_MOVIL): deja
   // la carrera activa centrada en vez de al principio de la fila.
   var activa = document.querySelector('.selector-carreras a.activa');
