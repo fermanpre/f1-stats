@@ -623,6 +623,10 @@ footer.sitio a { color: var(--text-muted); }
   --eq-desconocido-a: #6B6B6B;
   --eq-desconocido-b: #AEAEAE;
 }
+.efemeride { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin: 12px 0; background: var(--surface-1); }
+.efemeride h2 { font-size: 13px; margin: 0 0 6px; color: var(--text-secondary); }
+.efemeride ul { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+.efemeride li { margin: 4px 0; }
 .selector-modo-gap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 10px; font-size: 13px; }
 .etiqueta-modo-gap { color: var(--text-muted); cursor: pointer; user-select: none; }
 html:not([data-gap-modo="total"]) .etiqueta-modo-gap[data-modo-opcion="diferencia"],
