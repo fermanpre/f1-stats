@@ -559,6 +559,7 @@ footer.sitio a { color: var(--text-muted); }
 .entrada-changelog h3 { color: var(--text-primary); font-size: 14px; margin: 4px 0 8px; }
 .entrada-changelog ul { margin: 0; padding-left: 20px; }
 .entrada-changelog ul li { margin: 3px 0; }
+.entrada-changelog ul + h3 { margin-top: 16px; }
 .enlaces-contacto-autor { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 .enlace-contacto-autor { display: inline-flex; align-items: center; gap: 8px; width: fit-content; color: var(--text-primary); text-decoration: none; }
 .enlace-contacto-autor:hover { color: var(--link); }
