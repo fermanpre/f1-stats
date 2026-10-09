@@ -95,6 +95,12 @@
       var atributo = idioma === 'en' || idioma === 'fr' ? 'data-placeholder-' + idioma : 'data-placeholder-es';
       campo.setAttribute('placeholder', campo.getAttribute(atributo));
     });
+    // Los globos (title) con texto que depende del idioma llevan el de los otros dos en data-titulo-es / -fr: se copia al title el del idioma elegido. El
+    // title de partida está en inglés; se guarda en data-titulo-en la primera vez para poder volver a él.
+    document.querySelectorAll('[data-titulo-es]').forEach(function (celda) {
+      if (!celda.hasAttribute('data-titulo-en')) celda.setAttribute('data-titulo-en', celda.getAttribute('title'));
+      celda.setAttribute('title', celda.getAttribute('data-titulo-' + idioma));
+    });
     botones.forEach(function (boton) {
       boton.classList.toggle('activa', boton.getAttribute('data-lang-opcion') === idioma);
     });
