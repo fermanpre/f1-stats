@@ -245,13 +245,14 @@ td.col-pegada, th.col-pegada {
   transform: translateZ(0);
 }
 tbody tr:hover td.col-pegada { background: var(--row-hover); }
-td.pit { background: var(--pit-bg); color: var(--pit); font-weight: 600; }
+/* Boxes: solo el color del texto (y la seminegrita), como las mejores vueltas. El relleno se reserva para los estados de la vuelta
+   entera o de una marca de carrera: SC, VSC, bandera roja y formación. */
+td.pit { color: var(--pit); font-weight: 600; }
 td.mejor-vuelta { font-weight: 700; }
 td.mejor-piloto { color: var(--personal-best); }
 td.mejor-carrera { color: var(--race-best); }
-/* Columna entera (cabecera th incluida) de laptimes.html bajo SC/VSC -
-   td.pit tiene prioridad visual si ambas aplican a la vez (declarada
-   antes, y el fondo de pit es más específico del suceso puntual). */
+/* Columna entera (cabecera th incluida) de laptimes.html bajo SC/VSC. Una celda de boxes dentro de ella conserva el
+   relleno de la columna y solo cambia el color y el peso del texto. */
 th.safety-car, td.safety-car { background: var(--safety-car-bg); }
 th.vsc, td.vsc { background: var(--vsc-bg); }
 td.bandera-roja { background: var(--bandera-roja-bg); color: var(--bandera-roja); font-style: italic; }
@@ -623,14 +624,31 @@ footer.sitio a { color: var(--text-muted); }
   --eq-desconocido-a: #6B6B6B;
   --eq-desconocido-b: #AEAEAE;
 }
-:root { --safety-car-muestra: #d95e00; --vsc-muestra: #ffdd00; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --safety-car-muestra: #ff7700; --vsc-muestra: #ffd400; }
-}
-:root[data-theme="dark"] { --safety-car-muestra: #ff7700; --vsc-muestra: #ffd400; }
 .muestra-leyenda { display: inline-block; width: 11px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; box-shadow: 0 0 0 1px rgba(128,128,128,0.55); }
-.muestra-safety-car { background: var(--safety-car-muestra); }
-.muestra-vsc { background: var(--vsc-muestra); }
+.muestra-safety-car { background-color: var(--page-plane); background-image: linear-gradient(var(--safety-car-bg), var(--safety-car-bg)); }
+.muestra-vsc { background-color: var(--page-plane); background-image: linear-gradient(var(--vsc-bg), var(--vsc-bg)); }
+.muestra-bandera-roja { background-color: var(--page-plane); background-image: linear-gradient(var(--bandera-roja-bg), var(--bandera-roja-bg)); }
+tr.safety-car-row td.col-pegada { background-color: var(--page-plane); background-image: linear-gradient(var(--safety-car-bg), var(--safety-car-bg)); }
+tr.vsc-row td.col-pegada { background-color: var(--page-plane); background-image: linear-gradient(var(--vsc-bg), var(--vsc-bg)); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) tr.vsc-row, :root:not([data-theme="light"]) th.vsc, :root:not([data-theme="light"]) td.vsc { background: #faf5cf; --text-primary: #0b0b0b; --text-secondary: #52514e; --pit: #d03b3b; --pit-bg: rgba(208,59,59,0.10); --personal-best: #006300; --race-best: #B0387A; --vuelta-formacion: #4d6a8c; --vuelta-formacion-bg: rgba(77,106,140,0.14); --bandera-roja: #8f0000; --bandera-roja-bg: rgba(153,0,0,0.30); color: var(--text-primary); }
+  :root:not([data-theme="light"]) tr.vsc-row td.col-pegada, :root:not([data-theme="light"]) .muestra-vsc { background: #faf5cf; }
+  :root:not([data-theme="light"]) tr.safety-car-row, :root:not([data-theme="light"]) th.safety-car, :root:not([data-theme="light"]) td.safety-car { background: #ecbb94; --text-primary: #0b0b0b; --text-secondary: #52514e; --pit: #d03b3b; --pit-bg: rgba(208,59,59,0.10); --personal-best: #006300; --race-best: #B0387A; --vuelta-formacion: #4d6a8c; --vuelta-formacion-bg: rgba(77,106,140,0.14); --bandera-roja: #8f0000; --bandera-roja-bg: rgba(153,0,0,0.30); color: var(--text-primary); }
+  :root:not([data-theme="light"]) tr.safety-car-row td.col-pegada, :root:not([data-theme="light"]) .muestra-safety-car { background: #ecbb94; }
+  :root:not([data-theme="light"]) td.bandera-roja { background: #dcaeac; --text-primary: #0b0b0b; --text-secondary: #52514e; --pit: #d03b3b; --pit-bg: rgba(208,59,59,0.10); --personal-best: #006300; --race-best: #B0387A; --vuelta-formacion: #4d6a8c; --vuelta-formacion-bg: rgba(77,106,140,0.14); --bandera-roja: #8f0000; --bandera-roja-bg: rgba(153,0,0,0.30); }
+  :root:not([data-theme="light"]) .muestra-bandera-roja { background: #dcaeac; }
+}
+:root[data-theme="dark"] tr.vsc-row, :root[data-theme="dark"] th.vsc, :root[data-theme="dark"] td.vsc { background: #faf5cf; --text-primary: #0b0b0b; --text-secondary: #52514e; --pit: #d03b3b; --pit-bg: rgba(208,59,59,0.10); --personal-best: #006300; --race-best: #B0387A; --vuelta-formacion: #4d6a8c; --vuelta-formacion-bg: rgba(77,106,140,0.14); --bandera-roja: #8f0000; --bandera-roja-bg: rgba(153,0,0,0.30); color: var(--text-primary); }
+:root[data-theme="dark"] tr.vsc-row td.col-pegada, :root[data-theme="dark"] .muestra-vsc { background: #faf5cf; }
+:root[data-theme="dark"] tr.safety-car-row, :root[data-theme="dark"] th.safety-car, :root[data-theme="dark"] td.safety-car { background: #ecbb94; --text-primary: #0b0b0b; --text-secondary: #52514e; --pit: #d03b3b; --pit-bg: rgba(208,59,59,0.10); --personal-best: #006300; --race-best: #B0387A; --vuelta-formacion: #4d6a8c; --vuelta-formacion-bg: rgba(77,106,140,0.14); --bandera-roja: #8f0000; --bandera-roja-bg: rgba(153,0,0,0.30); color: var(--text-primary); }
+:root[data-theme="dark"] tr.safety-car-row td.col-pegada, :root[data-theme="dark"] .muestra-safety-car { background: #ecbb94; }
+:root[data-theme="dark"] td.bandera-roja { background: #dcaeac; --text-primary: #0b0b0b; --text-secondary: #52514e; --pit: #d03b3b; --pit-bg: rgba(208,59,59,0.10); --personal-best: #006300; --race-best: #B0387A; --vuelta-formacion: #4d6a8c; --vuelta-formacion-bg: rgba(77,106,140,0.14); --bandera-roja: #8f0000; --bandera-roja-bg: rgba(153,0,0,0.30); }
+:root[data-theme="dark"] .muestra-bandera-roja { background: #dcaeac; }
+:root { --leyenda-vsc: var(--vsc); --leyenda-safety-car: var(--safety-car); --leyenda-bandera-roja: var(--bandera-roja); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --leyenda-vsc: #faf5cf; --leyenda-safety-car: #ecbb94; --leyenda-bandera-roja: #dcaeac; }
+}
+:root[data-theme="dark"] { --leyenda-vsc: #faf5cf; --leyenda-safety-car: #ecbb94; --leyenda-bandera-roja: #dcaeac; }
 .efemeride { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin: 12px 0; background: var(--surface-1); }
 .efemeride h2 { font-size: 13px; margin: 0 0 6px; color: var(--text-secondary); }
 .efemeride ul { list-style: none; margin: 0; padding: 0; font-size: 13px; }
