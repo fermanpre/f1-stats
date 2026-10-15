@@ -469,6 +469,39 @@
     });
   });
 
+
+  // Selección rápida (función `seleccion_rapida_pilotos`, ver generar_paginas.seleccion_rapida_html): añadir o quitar de golpe los N primeros de la carrera, por puesto de llegada
+  // (datosPilotos[numero].posicion). «Añadir» respeta lo ya elegido y mete los nuevos al final en orden de llegada; «quitar» saca solo a quienes estén entre los N primeros y deja el resto.
+  var ordenDeLlegada = Object.keys(datosPilotos).sort(function (a, b) {
+    var puestoA = typeof datosPilotos[a].posicion === 'number' ? datosPilotos[a].posicion : 999;
+    var puestoB = typeof datosPilotos[b].posicion === 'number' ? datosPilotos[b].posicion : 999;
+    return puestoA - puestoB;
+  });
+
+  function aplicarSeleccionRapida(accion, cuantos) {
+    var primeros = ordenDeLlegada.slice(0, cuantos);
+    if (accion === 'agregar') {
+      primeros.forEach(function (numero) {
+        if (pilotosSeleccionados.indexOf(numero) === -1) { pilotosSeleccionados.push(numero); }
+      });
+    } else {
+      pilotosSeleccionados = pilotosSeleccionados.filter(function (numero) { return primeros.indexOf(numero) === -1; });
+    }
+    dibujarGrafico();
+  }
+
+  document.querySelectorAll('.seleccion-rapida-boton').forEach(function (boton) {
+    boton.addEventListener('click', function () {
+      aplicarSeleccionRapida(boton.getAttribute('data-accion'), parseInt(boton.getAttribute('data-primeros'), 10));
+    });
+  });
+  document.querySelectorAll('.seleccion-rapida-numero').forEach(function (desplegable) {
+    desplegable.addEventListener('change', function () {
+      var cuantos = parseInt(desplegable.value, 10);
+      desplegable.selectedIndex = 0;
+      if (cuantos > 0) { aplicarSeleccionRapida(desplegable.getAttribute('data-accion'), cuantos); }
+    });
+  });
   if (botonRecorte) {
     botonRecorte.addEventListener('click', function () {
       recortarActivo = !recortarActivo;
