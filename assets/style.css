@@ -672,7 +672,7 @@ table.tabla-gapchart td.mejor-vuelta-todos:not(.pit):not(.mejor-piloto):not(.mej
 .tabla-records th, .tabla-records td { text-align: left; }
 .tabla-records td.tiempo-record { font-weight: 700; }
 .tabla-records .nota-trazado { color: var(--text-muted); font-size: 12px; }
-.enlace-records { margin: 12px 0; font-size: 13px; }
+header.sitio .migas .separador-migas { margin: 0 2px; }
 .selector-modo-gap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 10px; font-size: 13px; }
 .etiqueta-modo-gap { color: var(--text-muted); cursor: pointer; user-select: none; }
 html:not([data-gap-modo="total"]) .etiqueta-modo-gap[data-modo-opcion="diferencia"],
@@ -763,7 +763,7 @@ html[data-gap-congelado="si"] table.tabla-gapchart tr.fila-parrilla td.col-pegad
   header.sitio .marca a, header.sitio .migas a { display: inline-block; padding: 8px 0; }
   footer.sitio a { display: inline-block; padding: 10px 4px; }
   .enlace-autor { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; }
-  .efemeride li a, .enlace-records a { display: inline-block; padding: 8px 0; }
+  .efemeride li a { display: inline-block; padding: 8px 0; }
   /* Diferencias por vuelta: el código de 3 letras del piloto (11 px en escritorio) es lo único
      que identifica de quién es cada celda. A 13 px la tabla no se ensancha (las columnas las
      fija el valor, a 14 px) y cada fila solo gana 2-3 px. */
