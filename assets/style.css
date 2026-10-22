@@ -259,7 +259,7 @@ td.bandera-roja { background: var(--bandera-roja-bg); color: var(--bandera-roja)
 td.vuelta-formacion { background: var(--vuelta-formacion-bg); color: var(--vuelta-formacion); font-style: italic; }
 .leyenda { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
 header.sitio .acciones { display: flex; align-items: center; flex-wrap: wrap; max-width: 100%; gap: 8px; order: 1; }
-.boton-tema {
+.boton-tema, .boton-azar {
   border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
   border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer;
 }
@@ -736,6 +736,91 @@ html[data-gap-congelado="si"] table.tabla-gapchart tr.fila-parrilla td.col-pegad
   .interruptor-congelar .pomo-interruptor { width: 30px; height: 30px; }
   html[data-gap-congelado="si"] .interruptor-congelar .pomo-interruptor { transform: translateX(28px); }
 }
+.tabla-nombres-marco { flex: 0 0 auto; }
+html[data-gap-congelado="si"] .tabla-nombres-marco { box-sizing: border-box; max-height: calc(100vh - 80px); overflow: hidden; }
+html[data-gap-congelado="si"] .tabla-fija-envoltorio thead th { z-index: 3; }
+html[data-gap-congelado="si"] .tabla-fija-envoltorio th.safety-car {
+  background-color: var(--surface-1); background-image: linear-gradient(var(--safety-car-bg), var(--safety-car-bg));
+}
+html[data-gap-congelado="si"] .tabla-fija-envoltorio th.vsc {
+  background-color: var(--surface-1); background-image: linear-gradient(var(--vsc-bg), var(--vsc-bg));
+}
+.grupo-interruptor { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.selector-modo-gap { column-gap: 28px; row-gap: 12px; }
+.grupo-interruptor #etiqueta-congelar-no { margin-left: 0; }
+.selector-modo-gap > .grupo-congelar { margin-inline-end: auto; }
+/* Fondo gris por vueltas perdidas (perdidas-1 a perdidas-5): una sombra interior, no un background, para sumarse a los colores de
+   neutralización y de récord de la celda en lugar de taparlos. Tinta negra en el tema claro y blanca en el oscuro. */
+:root { --perdida-tinta: 0, 0, 0; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --perdida-tinta: 255, 255, 255; } }
+:root[data-theme="dark"] { --perdida-tinta: 255, 255, 255; }
+table.tabla-gapchart td.perdidas-1 { box-shadow: inset 0 0 0 200px rgba(var(--perdida-tinta), 0.04); }
+table.tabla-gapchart td.perdidas-2 { box-shadow: inset 0 0 0 200px rgba(var(--perdida-tinta), 0.07); }
+table.tabla-gapchart td.perdidas-3 { box-shadow: inset 0 0 0 200px rgba(var(--perdida-tinta), 0.10); }
+table.tabla-gapchart td.perdidas-4 { box-shadow: inset 0 0 0 200px rgba(var(--perdida-tinta), 0.14); }
+table.tabla-gapchart td.perdidas-5 { box-shadow: inset 0 0 0 200px rgba(var(--perdida-tinta), 0.19); }
+.muestra-perdidas-1 { background-color: var(--page-plane); background-image: linear-gradient(rgba(var(--perdida-tinta), 0.04), rgba(var(--perdida-tinta), 0.04)); }
+.muestra-perdidas-2 { background-color: var(--page-plane); background-image: linear-gradient(rgba(var(--perdida-tinta), 0.07), rgba(var(--perdida-tinta), 0.07)); }
+.muestra-perdidas-3 { background-color: var(--page-plane); background-image: linear-gradient(rgba(var(--perdida-tinta), 0.10), rgba(var(--perdida-tinta), 0.10)); }
+.muestra-perdidas-4 { background-color: var(--page-plane); background-image: linear-gradient(rgba(var(--perdida-tinta), 0.14), rgba(var(--perdida-tinta), 0.14)); }
+.muestra-perdidas-5 { background-color: var(--page-plane); background-image: linear-gradient(rgba(var(--perdida-tinta), 0.19), rgba(var(--perdida-tinta), 0.19)); }
+.etiqueta-vuelta, .etiqueta-ritmo { color: var(--text-muted); cursor: pointer; user-select: none; }
+html:not([data-gap-vuelta="lider"]) .etiqueta-vuelta[data-vuelta-opcion="propia"],
+html[data-gap-vuelta="lider"] .etiqueta-vuelta[data-vuelta-opcion="lider"],
+html:not([data-gap-ritmo="vuelta"]) .etiqueta-ritmo[data-ritmo-opcion="acumulado"],
+html[data-gap-ritmo="vuelta"] .etiqueta-ritmo[data-ritmo-opcion="vuelta"] { color: var(--text-primary); font-weight: 700; }
+.interruptor-vuelta, .interruptor-ritmo {
+  position: relative; flex: none; width: 56px; height: 30px; padding: 0; cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.3); border-radius: 15px; background: var(--text-muted);
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.35);
+  transition: background 0.18s ease;
+}
+.interruptor-vuelta .pomo-interruptor, .interruptor-ritmo .pomo-interruptor {
+  position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(#ffffff, #d9d9d6);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.95), inset 0 -2px 3px rgba(0,0,0,0.12);
+  transition: transform 0.18s ease;
+}
+html[data-gap-vuelta="lider"] .interruptor-vuelta { background: #c26a14; }
+html[data-gap-vuelta="lider"] .interruptor-vuelta .pomo-interruptor { transform: translateX(26px); }
+html[data-gap-ritmo="vuelta"] .interruptor-ritmo { background: #7a4fc4; }
+html[data-gap-ritmo="vuelta"] .interruptor-ritmo .pomo-interruptor { transform: translateX(26px); }
+.interruptor-vuelta:focus-visible, .interruptor-ritmo:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .interruptor-vuelta, .interruptor-vuelta .pomo-interruptor, .interruptor-ritmo, .interruptor-ritmo .pomo-interruptor { transition: none; }
+}
+.valor-gap-vuelta, .valor-total-vuelta, .valor-lider-vuelta { display: none; }
+html[data-gap-ritmo="vuelta"] .valor-gap, html[data-gap-ritmo="vuelta"] .valor-total, html[data-gap-ritmo="vuelta"] .valor-lider-acum { display: none; }
+html[data-gap-ritmo="vuelta"] .valor-lider-vuelta { display: inline; }
+html[data-gap-ritmo="vuelta"]:not([data-gap-modo="total"]) .valor-gap-vuelta { display: inline; }
+html[data-gap-ritmo="vuelta"][data-gap-modo="total"] .valor-total-vuelta { display: inline; }
+html:not([data-gap-vuelta="lider"]) .solo-vuelta-lider, html[data-gap-vuelta="lider"] .solo-vuelta-propia { display: none; }
+table.tabla-gapchart span.vuelta-doblado { font-size: 10px; font-weight: 400; font-style: italic; color: var(--text-muted); margin-left: 4px; }
+table.tabla-gapchart td.doblado span.valor-piloto { font-style: italic; }
+.estado-modos-gap { margin: 0 0 10px; min-height: 2.9em; max-width: 90ch; font-size: 13px; line-height: 1.4; color: var(--text-secondary); }
+/* Solo el hijo directo: cada frase lleva dentro los span de idioma de t() (.i18n-es/en/fr), que muestra o esconde su propia regla. */
+.estado-modos-gap > span { display: none; }
+@media (max-width: 640px) {
+  .selector-modo-gap { column-gap: 18px; }
+  .interruptor-vuelta, .interruptor-ritmo { width: 64px; height: 36px; border-radius: 18px; }
+  .interruptor-vuelta .pomo-interruptor, .interruptor-ritmo .pomo-interruptor { width: 30px; height: 30px; }
+  html[data-gap-vuelta="lider"] .interruptor-vuelta .pomo-interruptor, html[data-gap-ritmo="vuelta"] .interruptor-ritmo .pomo-interruptor { transform: translateX(28px); }
+}
+html:not([data-gap-modo="total"]):not([data-gap-vuelta="lider"]):not([data-gap-ritmo="vuelta"]) .estado-modos-gap .e-gap-propia-acum { display: inline; }
+html:not([data-gap-modo="total"]):not([data-gap-vuelta="lider"])[data-gap-ritmo="vuelta"] .estado-modos-gap .e-gap-propia-vuelta { display: inline; }
+html:not([data-gap-modo="total"])[data-gap-vuelta="lider"]:not([data-gap-ritmo="vuelta"]) .estado-modos-gap .e-gap-lider-acum { display: inline; }
+html:not([data-gap-modo="total"])[data-gap-vuelta="lider"][data-gap-ritmo="vuelta"] .estado-modos-gap .e-gap-lider-vuelta { display: inline; }
+html[data-gap-modo="total"]:not([data-gap-vuelta="lider"]):not([data-gap-ritmo="vuelta"]) .estado-modos-gap .e-total-propia-acum { display: inline; }
+html[data-gap-modo="total"]:not([data-gap-vuelta="lider"])[data-gap-ritmo="vuelta"] .estado-modos-gap .e-total-propia-vuelta { display: inline; }
+html[data-gap-modo="total"][data-gap-vuelta="lider"]:not([data-gap-ritmo="vuelta"]) .estado-modos-gap .e-total-lider-acum { display: inline; }
+html[data-gap-modo="total"][data-gap-vuelta="lider"][data-gap-ritmo="vuelta"] .estado-modos-gap .e-total-lider-vuelta { display: inline; }
+.enlace-como-leer { margin: 8px 0 0; font-size: 13px; }
+.pagina-lectura p, .pagina-lectura .lista-lectura { max-width: 78ch; line-height: 1.55; }
+.lista-lectura { margin: 0 0 14px; padding-left: 22px; }
+.lista-lectura li { margin: 7px 0; }
+.lista-colores { list-style: none; padding-left: 0; }
+.figura-ejemplo { margin: 16px 0 8px; max-width: 760px; }
+.figura-ejemplo figcaption { max-width: 78ch; margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
 /* Pantallas pequeñas (móviles en vertical, <= 640 px). El sitio es de escritorio
    por diseño - tablas de 22 pilotos por 70 vueltas -, así que esto NO es una versión
    móvil: solo evita que la página se rompa y hace usable lo básico. Todo lo de abajo
