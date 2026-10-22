@@ -145,6 +145,27 @@ var CARRERAS_AL_AZAR = ["https://fermanpre.github.io/f1-stats/2016/2016-australi
 })();
 
 (function () {
+  // El globo de «¿Cómo se lee esta página?» cuelga justo debajo del enlace, alineado con su inicio; si así se saldría de la ventana, se desplaza lo justo.
+  var MARGEN = 12;
+  function colocar(envoltorio) {
+    var globo = envoltorio.querySelector('.globo-como-leer');
+    if (!globo) return;
+    globo.style.left = '0px';
+    var caja = envoltorio.getBoundingClientRect();
+    var ancho = document.documentElement.clientWidth;
+    var anchoGlobo = globo.offsetWidth;
+    var izquierda = caja.left;
+    if (izquierda + anchoGlobo > ancho - MARGEN) izquierda = ancho - MARGEN - anchoGlobo;
+    if (izquierda < MARGEN) izquierda = MARGEN;
+    globo.style.left = (izquierda - caja.left) + 'px';
+  }
+  document.querySelectorAll('.con-globo-como-leer').forEach(function (envoltorio) {
+    envoltorio.addEventListener('mouseenter', function () { colocar(envoltorio); });
+    envoltorio.addEventListener('focusin', function () { colocar(envoltorio); });
+  });
+})();
+
+(function () {
   // Selector de carreras con scroll horizontal (pantallas pequeñas, ver CSS_MOVIL): deja
   // la carrera activa centrada en vez de al principio de la fila.
   var activa = document.querySelector('.selector-carreras a.activa');

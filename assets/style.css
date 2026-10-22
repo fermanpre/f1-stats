@@ -821,11 +821,11 @@ html[data-gap-modo="total"][data-gap-vuelta="lider"][data-gap-ritmo="vuelta"] .e
 .lista-colores { list-style: none; padding-left: 0; }
 .figura-ejemplo { margin: 16px 0 8px; max-width: 760px; }
 .figura-ejemplo figcaption { max-width: 78ch; margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
-/* El globo se ancla al párrafo del subtítulo (no al enlace, que suele estar al final de la línea) para que nunca se salga de la página. */
-.subtitulo { position: relative; }
-.con-globo-como-leer { position: static; display: inline; }
+/* El globo cuelga justo debajo del enlace (que, según el ancho de la ventana, cae a la izquierda, al centro o a la derecha del subtítulo); site.js lo desplaza en
+   horizontal lo justo para que no se salga de la ventana. Sin JavaScript queda alineado con el inicio del enlace. */
+.con-globo-como-leer { position: relative; display: inline-block; }
 .globo-como-leer {
-  display: none; position: absolute; left: 0; top: 100%; z-index: 40; width: max-content; max-width: min(560px, 100%); box-sizing: border-box;
+  display: none; position: absolute; left: 0; top: 100%; z-index: 40; width: max-content; max-width: min(560px, calc(100vw - 24px)); box-sizing: border-box;
   max-height: 70vh; overflow-y: auto; margin-top: 0; padding: 10px 12px; text-align: left; white-space: pre-line;
   font-size: 12.5px; font-weight: 400; font-style: normal; line-height: 1.45; color: var(--text-primary);
   background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
