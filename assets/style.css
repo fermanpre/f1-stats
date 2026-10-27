@@ -745,6 +745,42 @@ html[data-gap-congelado="si"] .tabla-fija-envoltorio th.safety-car {
 html[data-gap-congelado="si"] .tabla-fija-envoltorio th.vsc {
   background-color: var(--surface-1); background-image: linear-gradient(var(--vsc-bg), var(--vsc-bg));
 }
+:root { --piloto-destacado-fondo: rgba(11,11,11,0.10); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --piloto-destacado-fondo: rgba(255,255,255,0.20); } }
+:root[data-theme="dark"] { --piloto-destacado-fondo: rgba(255,255,255,0.20); }
+.selector-piloto { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 0; font-size: 13px; }
+.selector-piloto label { color: var(--text-secondary); }
+.selector-piloto select {
+  border: 1px solid var(--border); border-radius: 6px; background: var(--surface-1); color: var(--text-primary);
+  padding: 6px 8px; font-size: 13px; max-width: 100%;
+}
+.selector-piloto select:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+table.tabla-gapchart .codigo-piloto { cursor: pointer; }
+table.tabla-gapchart td.piloto-destacado {
+  outline: 2px solid var(--text-primary); outline-offset: -2px;
+  background-image: linear-gradient(var(--piloto-destacado-fondo), var(--piloto-destacado-fondo));
+  background-image: linear-gradient(color-mix(in srgb, var(--color-destacado, #888) 40%, transparent), color-mix(in srgb, var(--color-destacado, #888) 40%, transparent));
+}
+table.tabla-gapchart td.piloto-destacado .codigo-piloto { font-weight: 800; }
+#grafico-diferencias-svg { width: 100%; height: auto; max-height: 260px; }
+.grafico-linea-cero { stroke: var(--text-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.diferencias-controles { margin: 10px 0 12px; }
+.diferencias-selectores { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 8px; font-size: 13px; }
+.diferencias-selectores label { color: var(--text-secondary); font-weight: 600; }
+.diferencias-selectores select {
+  border: 1px solid var(--border); border-radius: 6px; background: var(--surface-1); color: var(--text-primary);
+  padding: 6px 8px; font-size: 13px; max-width: 100%;
+}
+.diferencias-selectores select:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.piloto-leyenda-seleccionable { cursor: pointer; border-radius: 6px; }
+.piloto-leyenda-seleccionable:hover { background: var(--row-hover); }
+.piloto-leyenda-seleccionable:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+.piloto-leyenda-seleccionable.seleccionado { background: var(--row-hover); font-weight: 700; }
+.sprite-abandono { position: absolute; width: 0; height: 0; overflow: hidden; }
+.icono-abandono { width: 18px; height: 18px; vertical-align: middle; }
+table.tabla-gapchart td.abandono { cursor: help; }
+table.tabla-gapchart td.abandono span.valor-piloto { line-height: 1; padding-top: 3px; }
+.credito-motivos { margin: 8px 0 0; font-size: 12px; color: var(--text-muted); }
 .grupo-interruptor { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .selector-modo-gap { column-gap: 28px; row-gap: 12px; }
 .grupo-interruptor #etiqueta-congelar-no { margin-left: 0; }

@@ -112,6 +112,58 @@ var CARRERAS_AL_AZAR = ["https://fermanpre.github.io/f1-stats/2016/2016-australi
 })();
 
 (function () {
+  // Gap chart con «seguir a un piloto» (clave piloto_destacado): destaca en cada vuelta la celda del piloto elegido. Las celdas no llevan
+  // ningún atributo del piloto: se localizan por el código de su <span class="codigo-piloto"> (el primer texto del span; detrás puede
+  // venir el cambio de posiciones). Se elige con el menú o pulsando el código de cualquier celda, y la elección va en la dirección
+  // (?piloto=VER) para poder enviar el enlace.
+  var menu = document.getElementById('seguir-piloto');
+  var tabla = document.querySelector('table.tabla-gapchart');
+  if (!menu || !tabla) return;
+  var celdasPorCodigo = {};
+  tabla.querySelectorAll('.codigo-piloto').forEach(function (etiqueta) {
+    var texto = etiqueta.firstChild ? etiqueta.firstChild.nodeValue : '';
+    var codigo = texto ? texto.trim() : '';
+    if (!codigo || !etiqueta.parentNode) return;
+    if (!celdasPorCodigo[codigo]) celdasPorCodigo[codigo] = [];
+    celdasPorCodigo[codigo].push(etiqueta.parentNode);
+  });
+  var elegido = '';
+  var claseDeColor = {};
+  Array.prototype.forEach.call(menu.options, function (opcion) {
+    if (opcion.value) claseDeColor[opcion.value] = opcion.getAttribute('data-color') || '';
+  });
+  function anotarEnLaDireccion() {
+    try {
+      var direccion = new URL(window.location.href);
+      if (elegido) direccion.searchParams.set('piloto', elegido); else direccion.searchParams.delete('piloto');
+      window.history.replaceState(null, '', direccion.pathname + direccion.search + direccion.hash);
+    } catch (e) {}
+  }
+  function seleccionar(codigo, anotar) {
+    if (elegido && celdasPorCodigo[elegido]) {
+      celdasPorCodigo[elegido].forEach(function (celda) { celda.classList.remove('piloto-destacado'); });
+    }
+    elegido = codigo && celdasPorCodigo[codigo] ? codigo : '';
+    if (elegido) celdasPorCodigo[elegido].forEach(function (celda) { celda.classList.add('piloto-destacado'); });
+    if (elegido && claseDeColor[elegido]) tabla.style.setProperty('--color-destacado', 'var(--' + claseDeColor[elegido] + ')');
+    else tabla.style.removeProperty('--color-destacado');
+    menu.value = elegido;
+    if (anotar) anotarEnLaDireccion();
+  }
+  menu.addEventListener('change', function () { seleccionar(menu.value, true); });
+  tabla.addEventListener('click', function (evento) {
+    var etiqueta = evento.target.closest ? evento.target.closest('.codigo-piloto') : null;
+    if (!etiqueta || !etiqueta.firstChild || !etiqueta.firstChild.nodeValue) return;
+    var codigo = etiqueta.firstChild.nodeValue.trim();
+    seleccionar(codigo === elegido ? '' : codigo, true);
+  });
+  try {
+    var pedido = new URLSearchParams(window.location.search).get('piloto');
+    if (pedido) seleccionar(pedido.toUpperCase(), false);
+  } catch (e) {}
+})();
+
+(function () {
   // Dos interruptores con el mismo comportamiento: «vuelta de cada piloto / vuelta del líder» y «acumulado / tiempos de vuelta».
   // Cada uno guarda su preferencia en localStorage y solo acepta los dos valores que conoce (cualquier otro se ignora).
   var interruptores = [
@@ -163,6 +215,24 @@ var CARRERAS_AL_AZAR = ["https://fermanpre.github.io/f1-stats/2016/2016-australi
     envoltorio.addEventListener('mouseenter', function () { colocar(envoltorio); });
     envoltorio.addEventListener('focusin', function () { colocar(envoltorio); });
   });
+})();
+
+(function () {
+  // «Previa de la carrera» (clave previa_carrera) en la ficha de circuito: el bloque va siempre en el HTML, oculto, con la fecha de la carrera en data-fecha (AAAA-MM-DD).
+  // Se muestra desde el lunes anterior (fecha menos 6 días) hasta el día de la carrera, según la fecha del navegador, o siempre con ?previa=1 en la dirección.
+  var bloque = document.querySelector('.previa-carrera[data-fecha]');
+  if (!bloque) return;
+  var partes = (bloque.getAttribute('data-fecha') || '').split('-');
+  if (partes.length !== 3) return;
+  var anio = parseInt(partes[0], 10), mes = parseInt(partes[1], 10) - 1, dia = parseInt(partes[2], 10);
+  if (isNaN(anio) || isNaN(mes) || isNaN(dia)) return;
+  var forzado = false;
+  try { forzado = new URLSearchParams(window.location.search).get('previa') === '1'; } catch (e) {}
+  var ahora = new Date();
+  var hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+  var desde = new Date(anio, mes, dia - 6);
+  var hasta = new Date(anio, mes, dia);
+  if (forzado || (hoy >= desde && hoy <= hasta)) bloque.removeAttribute('hidden');
 })();
 
 (function () {
@@ -712,4 +782,336 @@ var CARRERAS_AL_AZAR = ["https://fermanpre.github.io/f1-stats/2016/2016-australi
   var botonRechazar = banner.querySelector('.rechazar-consentimiento');
   if (botonAceptar) botonAceptar.addEventListener('click', function () { elegir('aceptado'); });
   if (botonRechazar) botonRechazar.addEventListener('click', function () { elegir('rechazado'); });
+})();(function () {
+  // Gráfico de diferencias del gap chart (clave gapchart_diferencias): dibuja, vuelta a vuelta, cuánto va cada piloto elegido por detrás (o por delante) de una
+  // referencia, que es el líder de esa vuelta o un piloto concreto. Diferencia = acumulado del piloto - acumulado de la referencia en esa vuelta, la misma resta con
+  // la que la tabla calcula el hueco con el líder (ver gapchart_diferencias.py). Los datos van en #datos-diferencias-json: por piloto, [vuelta, acumulado, máscara de
+  // categorías] (1 boxes, 2 Safety Car, 4 VSC, 8 bandera roja, 16 vuelta de formación), y el acumulado del líder de cada vuelta.
+  var svg = document.getElementById('grafico-diferencias-svg');
+  var elementoDatos = document.getElementById('datos-diferencias-json');
+  if (!svg || !elementoDatos) return;
+  var datos = JSON.parse(elementoDatos.textContent);
+  var pilotos = datos.pilotos;
+  var lider = datos.lider;
+  var figura = svg.closest('figure');
+  var tooltip = document.getElementById('tooltip-diferencias');
+  var tituloGrafico = document.getElementById('titulo-grafico-diferencias');
+  var leyendaChips = document.getElementById('leyenda-diferencias');
+  var botonRecorte = document.getElementById('recorte-diferencias');
+  var menuReferencia = document.getElementById('diferencias-referencia');
+  var menuAnadir = document.getElementById('diferencias-anadir');
+  var controles = document.querySelector('.diferencias-controles');
+  var seleccionados = [];
+  var referencia = '';
+  var recortar = false;
+
+  var pilotosPorLlegada = Object.keys(pilotos).sort(function (a, b) { return pilotos[a].posicion - pilotos[b].posicion; });
+  var acumuladoPorVuelta = {};
+  pilotosPorLlegada.forEach(function (numero) {
+    var mapa = {};
+    pilotos[numero].vueltas.forEach(function (p) { mapa[p[0]] = p[1]; });
+    acumuladoPorVuelta[numero] = mapa;
+  });
+  var totalDeVueltas = Math.max.apply(null, Object.keys(lider).map(Number));
+
+  function idioma() { return document.documentElement.getAttribute('data-lang') || 'en'; }
+  function segunIdioma(textos) { return textos[idioma()] || textos.en; }
+
+  // Un <option> no admite etiquetas (el navegador las descarta y quedarían los tres idiomas pegados): el texto de la opción «Líder» va en atributos y se pone al
+  // cargar la página y al cambiar de idioma.
+  function traducirOpciones() {
+    document.querySelectorAll('#diferencias-referencia option[data-texto-en]').forEach(function (opcion) {
+      opcion.textContent = opcion.getAttribute('data-texto-' + idioma()) || opcion.getAttribute('data-texto-en');
+    });
+  }
+
+  // Tooltip propio (el mismo mecanismo que el gráfico de «Ranking de vueltas»: el <title> nativo de SVG tarda casi un segundo).
+  if (tooltip) {
+    svg.addEventListener('mousemove', function (evento) {
+      var texto = evento.target.getAttribute && evento.target.getAttribute('data-tooltip');
+      if (!texto) { tooltip.classList.add('oculto'); return; }
+      tooltip.textContent = texto;
+      tooltip.style.left = (evento.clientX + 14) + 'px';
+      tooltip.style.top = (evento.clientY + 14) + 'px';
+      tooltip.classList.remove('oculto');
+    });
+    svg.addEventListener('mouseleave', function () { tooltip.classList.add('oculto'); });
+  }
+
+  function vueltaDelLider(vuelta) {
+    var antes = lider[vuelta - 1];
+    return lider[vuelta] - (antes === undefined ? 0 : antes);
+  }
+
+  // Diferencia del piloto con la referencia en esa vuelta; null si el piloto o la referencia no la tienen (abandono, vuelta ausente).
+  function diferenciaDe(numero, vuelta) {
+    var propio = acumuladoPorVuelta[numero][vuelta];
+    if (propio === undefined) return null;
+    var base = referencia ? acumuladoPorVuelta[referencia][vuelta] : lider[vuelta];
+    if (base === undefined) return null;
+    return propio - base;
+  }
+
+  // Doblado: lleva al líder una vuelta entera o más. Es lo que aplasta la escala y lo único que recorta «Recortar huecos grandes» (las paradas, que son señal, no).
+  function estaDoblado(numero, vuelta) {
+    return acumuladoPorVuelta[numero][vuelta] - lider[vuelta] >= vueltaDelLider(vuelta);
+  }
+
+  function serieDe(numero) {
+    var puntos = [];
+    pilotos[numero].vueltas.forEach(function (p) {
+      var valor = diferenciaDe(numero, p[0]);
+      if (valor !== null) puntos.push({ vuelta: p[0], valor: valor, mascara: p[2], doblado: estaDoblado(numero, p[0]) });
+    });
+    return puntos;
+  }
+
+  function formatearSegundos(valor) {
+    var signo = valor > 0 ? '+' : (valor < 0 ? '\u2212' : '');
+    return signo + Math.abs(valor).toFixed(3) + ' s';
+  }
+
+  function formatearEtiquetaEje(valor, decimales) {
+    if (Math.abs(valor) < 1e-9) return '0';
+    return (valor > 0 ? '+' : '\u2212') + Math.abs(valor).toFixed(decimales);
+  }
+
+  // Paso «limpio» (1, 2, 5, 10, 20, 50...) para unas 4 marcas en el rango, de modo que el 0 caiga siempre sobre una marca.
+  function pasoLimpio(rango) {
+    var bruto = rango / 4;
+    var potencia = Math.pow(10, Math.floor(Math.log(bruto) / Math.LN10));
+    var fraccion = bruto / potencia;
+    return (fraccion <= 1 ? 1 : (fraccion <= 2 ? 2 : (fraccion <= 5 ? 5 : 10))) * potencia;
+  }
+
+  function claseColorCategoria(mascara) {
+    // Misma prioridad que el gráfico de «Ranking de vueltas»: bandera roja > vuelta de formación > Safety Car > VSC > boxes.
+    if (mascara & 8) return 'punto-bandera-roja';
+    if (mascara & 16) return 'punto-vuelta-formacion';
+    if (mascara & 2) return 'punto-safety-car';
+    if (mascara & 4) return 'punto-vsc';
+    if (mascara & 1) return 'punto-boxes';
+    return '';
+  }
+
+  function categoriasDe(mascara) {
+    var nombres = {
+      es: ['boxes', 'Safety Car', 'VSC', 'bandera roja', 'vuelta de formación'],
+      en: ['pit stop', 'Safety Car', 'VSC', 'red flag', 'formation lap'],
+      fr: ['stands', 'Safety Car', 'VSC', 'drapeau rouge', 'tour de formation']
+    }[idioma()] || ['pit stop', 'Safety Car', 'VSC', 'red flag', 'formation lap'];
+    var lista = [];
+    for (var i = 0; i < 5; i++) { if (mascara & (1 << i)) lista.push(nombres[i]); }
+    return lista.length ? ' (' + lista.join(', ') + ')' : '';
+  }
+
+  function marcarLeyenda() {
+    document.querySelectorAll('.piloto-leyenda-seleccionable').forEach(function (elemento) {
+      var elegido = seleccionados.indexOf(elemento.getAttribute('data-driver')) !== -1;
+      elemento.classList.toggle('seleccionado', elegido);
+      elemento.setAttribute('aria-pressed', elegido ? 'true' : 'false');
+    });
+  }
+
+  function alternarPiloto(numero) {
+    if (!pilotos[numero]) return;
+    var indice = seleccionados.indexOf(numero);
+    if (indice === -1) { seleccionados.push(numero); } else { seleccionados.splice(indice, 1); }
+    dibujar();
+  }
+
+  function dibujar() {
+    marcarLeyenda();
+    if (!seleccionados.length) {
+      figura.classList.add('oculto');
+      leyendaChips.classList.add('oculta');
+      leyendaChips.innerHTML = '';
+      return;
+    }
+    figura.classList.remove('oculto');
+    var series = seleccionados.map(function (numero) { return { numero: numero, datos: pilotos[numero], puntos: serieDe(numero) }; });
+
+    leyendaChips.classList.remove('oculta');
+    leyendaChips.innerHTML = series.map(function (s) {
+      return '<span class="chip-comparativa ' + s.datos.colorClase + '" data-driver="' + s.numero + '">'
+        + '<span class="chip-swatch"></span>' + s.datos.codigo + ' <span class="chip-quitar">&times;</span></span>';
+    }).join('');
+
+    var base = referencia
+      ? segunIdioma({ es: 'Diferencia con ' + pilotos[referencia].codigo, en: 'Gap to ' + pilotos[referencia].codigo, fr: 'Écart avec ' + pilotos[referencia].codigo })
+      : segunIdioma({ es: 'Diferencia con el líder', en: 'Gap to the leader', fr: 'Écart avec le leader' });
+    var ultimaDeLaReferencia = referencia ? Math.max.apply(null, Object.keys(acumuladoPorVuelta[referencia]).map(Number)) : totalDeVueltas;
+    var aviso = ultimaDeLaReferencia < totalDeVueltas
+      ? segunIdioma({
+          es: ' \u00b7 la referencia se retira tras la vuelta ' + ultimaDeLaReferencia,
+          en: ' \u00b7 the reference retires after lap ' + ultimaDeLaReferencia,
+          fr: ' \u00b7 la référence abandonne après le tour ' + ultimaDeLaReferencia
+        })
+      : '';
+    tituloGrafico.textContent = base + aviso;
+
+    var todos = [];
+    series.forEach(function (s) { todos = todos.concat(s.puntos); });
+    if (!todos.length) { svg.innerHTML = ''; return; }
+
+    var vMin = Math.min.apply(null, todos.map(function (p) { return p.vuelta; }));
+    var vMax = Math.max.apply(null, todos.map(function (p) { return p.vuelta; }));
+    if (vMin === vMax) vMax = vMin + 1;
+    var valores = todos.map(function (p) { return p.valor; });
+    // El 0 (la referencia) entra siempre en la escala. Por delante (valores negativos) arriba, por detrás abajo.
+    var dMin = Math.min(0, Math.min.apply(null, valores));
+    var dMax = Math.max(0, Math.max.apply(null, valores));
+    var hayRecorte = false;
+    if (recortar) {
+      var normales = todos.filter(function (p) { return !p.doblado; }).map(function (p) { return p.valor; });
+      if (normales.length) {
+        var techo = Math.max(0, Math.max.apply(null, normales)) * 1.05;
+        var suelo = Math.min(0, Math.min.apply(null, normales)) * 1.05;
+        hayRecorte = dMax > techo || dMin < suelo;
+        dMax = Math.min(dMax, techo);
+        dMin = Math.max(dMin, suelo);
+      }
+    }
+    if (dMax - dMin < 1) dMax = dMin + 1;
+
+    var izq = 46, der = 10, arr = 10, abj = 28;
+    var anchoTotal = 640, altoTotal = 220;
+    var anchoPlot = anchoTotal - izq - der;
+    var altoPlot = altoTotal - arr - abj;
+    function x(vuelta) { return izq + (vuelta - vMin) / (vMax - vMin) * anchoPlot; }
+    function y(valor) { return arr + (valor - dMin) / (dMax - dMin) * altoPlot; }
+    function yAjustada(valor) { return Math.min(arr + altoPlot, Math.max(arr, y(valor))); }
+
+    var svgInterno = '';
+    // Bandas de Safety Car y VSC: son un estado de la carrera, así que basta con las vueltas del primer piloto elegido.
+    series[0].datos.vueltas.forEach(function (p) {
+      var claseBanda = (p[2] & 2) ? 'grafico-banda-safety-car' : ((p[2] & 4) ? 'grafico-banda-vsc' : null);
+      if (!claseBanda) return;
+      var xIzq = x(p[0] - 0.5);
+      var xDer = x(p[0] + 0.5);
+      svgInterno += '<rect x="' + xIzq.toFixed(1) + '" y="' + arr + '" width="' + (xDer - xIzq).toFixed(1) + '" height="' + altoPlot + '" class="' + claseBanda + '"></rect>';
+    });
+
+    var pasoY = pasoLimpio(dMax - dMin);
+    var decimalesY = pasoY < 1 ? 1 : 0;
+    for (var k = Math.ceil(dMin / pasoY - 1e-9); k <= Math.floor(dMax / pasoY + 1e-9); k++) {
+      var valorTick = k * pasoY;
+      var yy = y(valorTick).toFixed(1);
+      svgInterno += '<line x1="' + izq + '" x2="' + (anchoTotal - der) + '" y1="' + yy + '" y2="' + yy + '" class="grafico-gridline"></line>';
+      svgInterno += '<text x="' + (izq - 6) + '" y="' + yy + '" class="grafico-etiqueta" text-anchor="end" dominant-baseline="middle">' + formatearEtiquetaEje(valorTick, decimalesY) + '</text>';
+    }
+    var yCero = y(0).toFixed(1);
+    svgInterno += '<line x1="' + izq + '" x2="' + (anchoTotal - der) + '" y1="' + yCero + '" y2="' + yCero + '" class="grafico-linea-cero"></line>';
+
+    var pasoX = (vMax - vMin) > 30 ? 5 : ((vMax - vMin) > 15 ? 2 : 1);
+    for (var v = vMin; v <= vMax; v += pasoX) {
+      svgInterno += '<text x="' + x(v).toFixed(1) + '" y="' + (altoTotal - 8) + '" class="grafico-etiqueta" text-anchor="middle">' + v + '</text>';
+    }
+
+    // Una polilínea por tramo continuo de vueltas de cada piloto (una vuelta ausente corta la línea en lugar de interpolarla).
+    series.forEach(function (s) {
+      var tramo = [];
+      var tramos = [tramo];
+      s.puntos.forEach(function (p, indice) {
+        if (indice > 0 && p.vuelta - s.puntos[indice - 1].vuelta > 1) { tramo = []; tramos.push(tramo); }
+        tramo.push(x(p.vuelta).toFixed(1) + ',' + yAjustada(p.valor).toFixed(1));
+      });
+      tramos.forEach(function (puntosDelTramo) {
+        if (puntosDelTramo.length > 1) svgInterno += '<polyline points="' + puntosDelTramo.join(' ') + '" class="grafico-linea ' + s.datos.colorClase + '"></polyline>';
+      });
+    });
+
+    var etiquetaVuelta = segunIdioma({ es: 'Vuelta ', en: 'Lap ', fr: 'Tour ' });
+    var sufijoReferencia = referencia ? ' (' + pilotos[referencia].codigo + ')' : '';
+    series.forEach(function (s) {
+      var prefijoPiloto = series.length > 1 ? s.datos.codigo + ' \u00b7 ' : '';
+      s.puntos.forEach(function (p) {
+        var recortado = recortar && (p.valor > dMax || p.valor < dMin);
+        var categoria = claseColorCategoria(p.mascara);
+        var clase = (recortado ? 'grafico-punto-recortado' : 'grafico-punto') + ' ' + s.datos.colorClase + (categoria ? ' ' + categoria : '');
+        var texto = prefijoPiloto + etiquetaVuelta + p.vuelta + ': ' + formatearSegundos(p.valor) + sufijoReferencia + categoriasDe(p.mascara);
+        svgInterno += '<circle cx="' + x(p.vuelta).toFixed(1) + '" cy="' + yAjustada(p.valor).toFixed(1) + '" r="' + (recortado ? 3 : 2.5) + '" class="' + clase + '" data-tooltip="' + texto + '"></circle>';
+      });
+    });
+
+    if (hayRecorte) {
+      svgInterno += '<line x1="' + (izq - 5) + '" x2="' + (izq + 3) + '" y1="' + (arr + altoPlot - 10) + '" y2="' + (arr + altoPlot - 4) + '" class="grafico-quiebre-eje"></line>';
+      svgInterno += '<line x1="' + (izq - 5) + '" x2="' + (izq + 3) + '" y1="' + (arr + altoPlot - 15) + '" y2="' + (arr + altoPlot - 9) + '" class="grafico-quiebre-eje"></line>';
+    }
+
+    var etiquetaEjeX = segunIdioma({ es: 'Vuelta', en: 'Lap', fr: 'Tour' });
+    var etiquetaEjeY = segunIdioma({ es: 'Segundos (+ detrás)', en: 'Seconds (+ behind)', fr: 'Secondes (+ derrière)' });
+    var ejeYx = izq - 34, ejeYy = arr + altoPlot / 2;
+    svgInterno += '<text x="' + ejeYx + '" y="' + ejeYy + '" class="grafico-etiqueta-eje" transform="rotate(-90 ' + ejeYx + ' ' + ejeYy + ')" text-anchor="middle">' + etiquetaEjeY + '</text>';
+    svgInterno += '<text x="' + (izq + anchoPlot / 2) + '" y="' + (altoTotal - 1) + '" class="grafico-etiqueta-eje" text-anchor="middle">' + etiquetaEjeX + '</text>';
+    svg.innerHTML = svgInterno;
+  }
+
+  function aplicarSeleccionDeDiferencias(accion, cuantos) {
+    var primeros = pilotosPorLlegada.slice(0, cuantos);
+    if (accion === 'agregar') {
+      primeros.forEach(function (numero) { if (seleccionados.indexOf(numero) === -1) seleccionados.push(numero); });
+    } else {
+      seleccionados = seleccionados.filter(function (numero) { return primeros.indexOf(numero) === -1; });
+    }
+    dibujar();
+  }
+
+  if (controles) {
+    controles.querySelectorAll('.seleccion-rapida-boton').forEach(function (boton) {
+      boton.addEventListener('click', function () {
+        aplicarSeleccionDeDiferencias(boton.getAttribute('data-accion'), parseInt(boton.getAttribute('data-primeros'), 10));
+      });
+    });
+    controles.querySelectorAll('.seleccion-rapida-numero').forEach(function (desplegable) {
+      desplegable.addEventListener('change', function () {
+        var cuantos = parseInt(desplegable.value, 10);
+        desplegable.selectedIndex = 0;
+        if (cuantos > 0) aplicarSeleccionDeDiferencias(desplegable.getAttribute('data-accion'), cuantos);
+      });
+    });
+  }
+
+  if (menuAnadir) {
+    menuAnadir.addEventListener('change', function () {
+      var numero = menuAnadir.value;
+      menuAnadir.selectedIndex = 0;
+      if (numero && seleccionados.indexOf(numero) === -1) alternarPiloto(numero);
+    });
+  }
+
+  if (menuReferencia) {
+    menuReferencia.addEventListener('change', function () {
+      referencia = menuReferencia.value;
+      dibujar();
+    });
+  }
+
+  document.querySelectorAll('.piloto-leyenda-seleccionable').forEach(function (elemento) {
+    elemento.addEventListener('click', function () { alternarPiloto(elemento.getAttribute('data-driver')); });
+    elemento.addEventListener('keydown', function (evento) {
+      if (evento.key === 'Enter' || evento.key === ' ') {
+        evento.preventDefault();
+        alternarPiloto(elemento.getAttribute('data-driver'));
+      }
+    });
+  });
+
+  leyendaChips.addEventListener('click', function (evento) {
+    var chip = evento.target.closest('.chip-comparativa');
+    if (chip) alternarPiloto(chip.getAttribute('data-driver'));
+  });
+
+  if (botonRecorte) {
+    botonRecorte.addEventListener('click', function () {
+      recortar = !recortar;
+      botonRecorte.classList.toggle('activo', recortar);
+      if (seleccionados.length) dibujar();
+    });
+  }
+
+  document.querySelectorAll('.opcion-idioma').forEach(function (boton) {
+    boton.addEventListener('click', function () { traducirOpciones(); if (seleccionados.length) dibujar(); });
+  });
+  traducirOpciones();
 })();
