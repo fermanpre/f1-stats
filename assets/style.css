@@ -9,6 +9,7 @@
   --gridline: #e1e0d9;
   --border: rgba(11,11,11,0.10);
   --row-hover: rgba(11,11,11,0.04);
+  --campeon-fondo: rgba(212,160,23,0.28);
   --pit: #d03b3b;
   --pit-bg: rgba(208,59,59,0.10);
   --personal-best: #006300;
@@ -42,6 +43,7 @@
     --gridline: #2c2c2a;
     --border: rgba(255,255,255,0.10);
     --row-hover: rgba(255,255,255,0.06);
+    --campeon-fondo: rgba(212,160,23,0.30);
     --pit: #e66767;
     --pit-bg: rgba(230,103,103,0.14);
     --personal-best: #0ca30c;
@@ -68,6 +70,7 @@
   --gridline: #2c2c2a;
   --border: rgba(255,255,255,0.10);
   --row-hover: rgba(255,255,255,0.06);
+  --campeon-fondo: rgba(212,160,23,0.30);
   --pit: #e66767;
   --pit-bg: rgba(230,103,103,0.14);
   --personal-best: #0ca30c;
@@ -538,6 +541,8 @@ footer.sitio a { color: var(--text-muted); }
 /* Quien ya no puede ser campeón del mundo, aun sumando todos los puntos que quedan, va sombreado. */
 .clasificacion-dos-columnas tr.sin-opciones td { background: var(--row-hover); color: var(--text-muted); }
 .clasificacion-dos-columnas tr.sin-opciones .icono-trofeo { opacity: .55; filter: grayscale(.6); }
+/* Quien ya es campeón del mundo matemático (el líder de la tabla) va con fondo dorado y en negrita. */
+.clasificacion-dos-columnas tr.campeon td { background: var(--campeon-fondo); font-weight: 700; }
 /* Títulos mundiales ya ganados: "(7" + icono del trofeo + ")" a la derecha del nombre. */
 .titulos-mundiales { white-space: nowrap; color: var(--text-muted); margin-left: 3px; }
 .icono-trofeo { height: 17px; width: auto; vertical-align: -4px; margin-left: 2px; }
