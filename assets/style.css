@@ -674,6 +674,123 @@ table.tabla-gapchart td.mejor-vuelta-todos:not(.pit):not(.mejor-piloto):not(.mej
 .efemeride h2 { font-size: 13px; margin: 0 0 6px; color: var(--text-secondary); }
 .efemeride ul { list-style: none; margin: 0; padding: 0; font-size: 13px; }
 .efemeride li { margin: 4px 0; }
+.resumen-datos, .resumen-numeros { display: grid; gap: 8px 24px; margin: 12px 0; }
+.resumen-datos { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.resumen-numeros { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.resumen-datos dt, .resumen-numeros dt { font-size: 12px; color: var(--text-muted); }
+.resumen-datos dd, .resumen-numeros dd { margin: 0; font-size: 14px; }
+.resumen-vistas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 12px 0 20px; }
+.resumen-tarjeta { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-1); color: var(--text-primary); text-decoration: none; }
+.resumen-tarjeta span { font-size: 12px; color: var(--text-secondary); }
+.resumen-tarjeta:hover { background: var(--row-hover); }
+table.tabla-resumen th, table.tabla-resumen td { text-align: left; }
+.resumen-nota { color: var(--text-muted); font-size: 12px; margin: 8px 0 0; }
+.resumen-cambio { font-weight: 700; color: var(--pit); }
+.resumen-navegacion { display: flex; justify-content: space-between; gap: 12px; margin: 24px 0 8px; }
+.resumen-navegacion-superior { margin: 12px 0 16px; }
+.resumen-navegacion a { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: var(--text-primary); }
+.resumen-navegacion a span { font-size: 12px; color: var(--text-muted); }
+.resumen-navegacion a:hover { background: var(--row-hover); }
+.resumen-navegacion .resumen-nav-siguiente { text-align: right; margin-left: auto; }
+/* En pantalla estrecha las tablas se desplazan dentro de su caja: se oculta la columna del equipo (la 3.ª de las dos
+   tablas) para que lo importante, los tiempos y la salida, no quede fuera de la vista al abrir la página. */
+@media (max-width: 640px) {
+  table.tabla-resumen th:nth-child(3), table.tabla-resumen td:nth-child(3) { display: none; }
+  table.tabla-resumen tr.sin-posicion td:nth-child(3) { display: none; }
+}
+.lapchart { display: block; width: 100%; min-width: 760px; height: auto; }
+.lapchart-eje { fill: var(--text-muted); font-size: 9px; }
+.lapchart-etiqueta { fill: var(--text-secondary); font-size: 10px; font-weight: 700; }
+.lapchart-banda-safety-car { fill: var(--safety-car-bg); }
+.lapchart-banda-vsc { fill: var(--vsc-bg); }
+.lapchart-banda-bandera-roja { fill: var(--bandera-roja-bg); }
+.lapchart-linea { fill: none; stroke: var(--link); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.lapchart-golpe { fill: none; stroke: transparent; stroke-width: 10; pointer-events: stroke; }
+.lapchart-abandono { fill: none; stroke: var(--link); stroke-width: 1.8; stroke-linecap: round; }
+.lapchart-punto { fill: var(--link); }
+.lapchart-piloto:hover .lapchart-linea { stroke-width: 3.6; }
+.lapchart:has(.lapchart-piloto:hover) .lapchart-piloto:not(:hover) { opacity: 0.3; }
+.lapchart-leyenda { margin-top: 8px; }
+.lapchart-muestra { display: inline-block; width: 11px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; box-shadow: 0 0 0 1px rgba(128,128,128,0.55); }
+.lapchart-muestra-safety-car { background-color: var(--page-plane); background-image: linear-gradient(var(--safety-car-bg), var(--safety-car-bg)); }
+.lapchart-muestra-vsc { background-color: var(--page-plane); background-image: linear-gradient(var(--vsc-bg), var(--vsc-bg)); }
+.lapchart-muestra-bandera-roja { background-color: var(--page-plane); background-image: linear-gradient(var(--bandera-roja-bg), var(--bandera-roja-bg)); }
+.lapchart-linea.eq-red_bull-a, .lapchart-abandono.eq-red_bull-a { stroke: var(--eq-red_bull-a); }
+.lapchart-punto.eq-red_bull-a { fill: var(--eq-red_bull-a); }
+.lapchart-linea.eq-red_bull-b, .lapchart-abandono.eq-red_bull-b { stroke: var(--eq-red_bull-b); }
+.lapchart-punto.eq-red_bull-b { fill: var(--eq-red_bull-b); }
+.lapchart-linea.eq-red_bull_junior-a, .lapchart-abandono.eq-red_bull_junior-a { stroke: var(--eq-red_bull_junior-a); }
+.lapchart-punto.eq-red_bull_junior-a { fill: var(--eq-red_bull_junior-a); }
+.lapchart-linea.eq-red_bull_junior-b, .lapchart-abandono.eq-red_bull_junior-b { stroke: var(--eq-red_bull_junior-b); }
+.lapchart-punto.eq-red_bull_junior-b { fill: var(--eq-red_bull_junior-b); }
+.lapchart-linea.eq-ferrari-a, .lapchart-abandono.eq-ferrari-a { stroke: var(--eq-ferrari-a); }
+.lapchart-punto.eq-ferrari-a { fill: var(--eq-ferrari-a); }
+.lapchart-linea.eq-ferrari-b, .lapchart-abandono.eq-ferrari-b { stroke: var(--eq-ferrari-b); }
+.lapchart-punto.eq-ferrari-b { fill: var(--eq-ferrari-b); }
+.lapchart-linea.eq-mercedes-a, .lapchart-abandono.eq-mercedes-a { stroke: var(--eq-mercedes-a); }
+.lapchart-punto.eq-mercedes-a { fill: var(--eq-mercedes-a); }
+.lapchart-linea.eq-mercedes-b, .lapchart-abandono.eq-mercedes-b { stroke: var(--eq-mercedes-b); }
+.lapchart-punto.eq-mercedes-b { fill: var(--eq-mercedes-b); }
+.lapchart-linea.eq-mclaren-a, .lapchart-abandono.eq-mclaren-a { stroke: var(--eq-mclaren-a); }
+.lapchart-punto.eq-mclaren-a { fill: var(--eq-mclaren-a); }
+.lapchart-linea.eq-mclaren-b, .lapchart-abandono.eq-mclaren-b { stroke: var(--eq-mclaren-b); }
+.lapchart-punto.eq-mclaren-b { fill: var(--eq-mclaren-b); }
+.lapchart-linea.eq-williams-a, .lapchart-abandono.eq-williams-a { stroke: var(--eq-williams-a); }
+.lapchart-punto.eq-williams-a { fill: var(--eq-williams-a); }
+.lapchart-linea.eq-williams-b, .lapchart-abandono.eq-williams-b { stroke: var(--eq-williams-b); }
+.lapchart-punto.eq-williams-b { fill: var(--eq-williams-b); }
+.lapchart-linea.eq-alpine-a, .lapchart-abandono.eq-alpine-a { stroke: var(--eq-alpine-a); }
+.lapchart-punto.eq-alpine-a { fill: var(--eq-alpine-a); }
+.lapchart-linea.eq-alpine-b, .lapchart-abandono.eq-alpine-b { stroke: var(--eq-alpine-b); }
+.lapchart-punto.eq-alpine-b { fill: var(--eq-alpine-b); }
+.lapchart-linea.eq-renault-a, .lapchart-abandono.eq-renault-a { stroke: var(--eq-renault-a); }
+.lapchart-punto.eq-renault-a { fill: var(--eq-renault-a); }
+.lapchart-linea.eq-renault-b, .lapchart-abandono.eq-renault-b { stroke: var(--eq-renault-b); }
+.lapchart-punto.eq-renault-b { fill: var(--eq-renault-b); }
+.lapchart-linea.eq-lotus-a, .lapchart-abandono.eq-lotus-a { stroke: var(--eq-lotus-a); }
+.lapchart-punto.eq-lotus-a { fill: var(--eq-lotus-a); }
+.lapchart-linea.eq-lotus-b, .lapchart-abandono.eq-lotus-b { stroke: var(--eq-lotus-b); }
+.lapchart-punto.eq-lotus-b { fill: var(--eq-lotus-b); }
+.lapchart-linea.eq-aston_martin-a, .lapchart-abandono.eq-aston_martin-a { stroke: var(--eq-aston_martin-a); }
+.lapchart-punto.eq-aston_martin-a { fill: var(--eq-aston_martin-a); }
+.lapchart-linea.eq-aston_martin-b, .lapchart-abandono.eq-aston_martin-b { stroke: var(--eq-aston_martin-b); }
+.lapchart-punto.eq-aston_martin-b { fill: var(--eq-aston_martin-b); }
+.lapchart-linea.eq-racing_point-a, .lapchart-abandono.eq-racing_point-a { stroke: var(--eq-racing_point-a); }
+.lapchart-punto.eq-racing_point-a { fill: var(--eq-racing_point-a); }
+.lapchart-linea.eq-racing_point-b, .lapchart-abandono.eq-racing_point-b { stroke: var(--eq-racing_point-b); }
+.lapchart-punto.eq-racing_point-b { fill: var(--eq-racing_point-b); }
+.lapchart-linea.eq-force_india-a, .lapchart-abandono.eq-force_india-a { stroke: var(--eq-force_india-a); }
+.lapchart-punto.eq-force_india-a { fill: var(--eq-force_india-a); }
+.lapchart-linea.eq-force_india-b, .lapchart-abandono.eq-force_india-b { stroke: var(--eq-force_india-b); }
+.lapchart-punto.eq-force_india-b { fill: var(--eq-force_india-b); }
+.lapchart-linea.eq-haas-a, .lapchart-abandono.eq-haas-a { stroke: var(--eq-haas-a); }
+.lapchart-punto.eq-haas-a { fill: var(--eq-haas-a); }
+.lapchart-linea.eq-haas-b, .lapchart-abandono.eq-haas-b { stroke: var(--eq-haas-b); }
+.lapchart-punto.eq-haas-b { fill: var(--eq-haas-b); }
+.lapchart-linea.eq-sauber-a, .lapchart-abandono.eq-sauber-a { stroke: var(--eq-sauber-a); }
+.lapchart-punto.eq-sauber-a { fill: var(--eq-sauber-a); }
+.lapchart-linea.eq-sauber-b, .lapchart-abandono.eq-sauber-b { stroke: var(--eq-sauber-b); }
+.lapchart-punto.eq-sauber-b { fill: var(--eq-sauber-b); }
+.lapchart-linea.eq-audi-a, .lapchart-abandono.eq-audi-a { stroke: var(--eq-audi-a); }
+.lapchart-punto.eq-audi-a { fill: var(--eq-audi-a); }
+.lapchart-linea.eq-audi-b, .lapchart-abandono.eq-audi-b { stroke: var(--eq-audi-b); }
+.lapchart-punto.eq-audi-b { fill: var(--eq-audi-b); }
+.lapchart-linea.eq-cadillac-a, .lapchart-abandono.eq-cadillac-a { stroke: var(--eq-cadillac-a); }
+.lapchart-punto.eq-cadillac-a { fill: var(--eq-cadillac-a); }
+.lapchart-linea.eq-cadillac-b, .lapchart-abandono.eq-cadillac-b { stroke: var(--eq-cadillac-b); }
+.lapchart-punto.eq-cadillac-b { fill: var(--eq-cadillac-b); }
+.lapchart-linea.eq-caterham-a, .lapchart-abandono.eq-caterham-a { stroke: var(--eq-caterham-a); }
+.lapchart-punto.eq-caterham-a { fill: var(--eq-caterham-a); }
+.lapchart-linea.eq-caterham-b, .lapchart-abandono.eq-caterham-b { stroke: var(--eq-caterham-b); }
+.lapchart-punto.eq-caterham-b { fill: var(--eq-caterham-b); }
+.lapchart-linea.eq-marussia-a, .lapchart-abandono.eq-marussia-a { stroke: var(--eq-marussia-a); }
+.lapchart-punto.eq-marussia-a { fill: var(--eq-marussia-a); }
+.lapchart-linea.eq-marussia-b, .lapchart-abandono.eq-marussia-b { stroke: var(--eq-marussia-b); }
+.lapchart-punto.eq-marussia-b { fill: var(--eq-marussia-b); }
+.lapchart-linea.eq-desconocido-a, .lapchart-abandono.eq-desconocido-a { stroke: var(--eq-desconocido-a); }
+.lapchart-punto.eq-desconocido-a { fill: var(--eq-desconocido-a); }
+.lapchart-linea.eq-desconocido-b, .lapchart-abandono.eq-desconocido-b { stroke: var(--eq-desconocido-b); }
+.lapchart-punto.eq-desconocido-b { fill: var(--eq-desconocido-b); }
 .tabla-records th, .tabla-records td { text-align: left; }
 .tabla-records td.tiempo-record { font-weight: 700; }
 .tabla-records .nota-trazado { color: var(--text-muted); font-size: 12px; }
